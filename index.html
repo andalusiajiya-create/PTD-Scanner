@@ -269,13 +269,29 @@ function onScan(raw){
 function previewFoto(input){
   const file=input.files[0];
   if(!file) return;
+  document.getElementById('foto-status').textContent='Compressing…';
+  document.getElementById('foto-status').style.color='#d09030';
   const reader=new FileReader();
   reader.onload=e=>{
-    fotoBase64=e.target.result.split(',')[1];
-    const img=document.getElementById('foto-preview');
-    img.src=e.target.result; img.style.display='block';
-    document.getElementById('foto-status').textContent='📸 Photo ready';
-    document.getElementById('foto-status').style.color='#2ebc8a';
+    const origImg=new Image();
+    origImg.onload=()=>{
+      const MAX=1200, quality=0.70;
+      let w=origImg.width, h=origImg.height;
+      if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}
+      else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}
+      const canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(origImg,0,0,w,h);
+      const compressed=canvas.toDataURL('image/jpeg',quality);
+      fotoBase64=compressed.split(',')[1];
+      const origKB=Math.round(file.size/1024);
+      const newKB=Math.round(fotoBase64.length*0.75/1024);
+      const img=document.getElementById('foto-preview');
+      img.src=compressed; img.style.display='block';
+      document.getElementById('foto-status').textContent=`📸 Ready · ${origKB}KB → ${newKB}KB`;
+      document.getElementById('foto-status').style.color='#2ebc8a';
+    };
+    origImg.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }
