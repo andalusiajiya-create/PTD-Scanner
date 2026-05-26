@@ -9,8 +9,6 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh;padding-bottom:60px}
-
-/* TOP BAR */
 .topbar{background:#1a1a1a;border-bottom:1px solid #2a2a2a;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .topbar-left{display:flex;align-items:center;gap:10px}
 .topbar-icon{font-size:20px}
@@ -21,35 +19,23 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 .sync-dot.green{background:#2ebc8a;animation:none}
 .sync-dot.red{background:#c04040;animation:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* BOTTOM TAB */
 .bottom-tab{position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid #2a2a2a;display:flex;z-index:100}
-.tab-item{flex:1;padding:10px 4px 8px;text-align:center;font-size:10px;font-weight:600;color:#555;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .15s}
+.tab-item{flex:1;padding:10px 4px 8px;text-align:center;font-size:10px;font-weight:600;color:#555;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
 .tab-item .tab-icon{font-size:18px}
 .tab-item.on{color:#4e8fd4}
-
-/* PAGES */
 .page{display:none;padding:16px}
 .page.on{display:block}
-
-/* CARDS */
 .card{background:#242424;border:1px solid #333;border-radius:10px;padding:14px;margin-bottom:12px}
 .card-title{font-size:10px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
-
-/* METRIC GRID */
 .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .metric-card{background:#242424;border:1px solid #333;border-radius:10px;padding:14px;text-align:center}
 .metric-val{font-size:28px;font-weight:700;color:#fff;margin-bottom:2px}
 .metric-label{font-size:10px;color:#666}
-
-/* SCAN MODE */
 .operator-select{width:100%;background:#1e1e1e;border:1.5px solid #444;border-radius:8px;color:#e8e8e8;padding:10px 12px;font-size:14px;margin-bottom:10px;appearance:none;cursor:pointer}
 .operator-select:focus{outline:none;border-color:#4e8fd4}
-.location-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
-.loc-btn{padding:8px 4px;border-radius:7px;border:1.5px solid #333;background:#2a2a2a;color:#888;font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
+.location-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:4px}
+.loc-btn{padding:8px 4px;border-radius:7px;border:1.5px solid #333;background:#2a2a2a;color:#888;font-size:11px;font-weight:600;cursor:pointer;text-align:center}
 .loc-btn.on{background:#1a2e4a;border-color:#4e8fd4;color:#4e8fd4}
-
-/* CAMERA */
 .camera-wrap{background:#000;border-radius:12px;overflow:hidden;position:relative;margin-bottom:12px;aspect-ratio:1;max-width:360px;margin-left:auto;margin-right:auto}
 #qr-reader{width:100%!important}
 #qr-reader video{width:100%!important;height:100%!important;object-fit:cover}
@@ -64,75 +50,56 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 .corner-br{bottom:-1px;right:-1px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
 .scan-line{position:absolute;left:5%;right:5%;height:2px;background:linear-gradient(90deg,transparent,#4e8fd4,transparent);animation:scanline 2s ease-in-out infinite}
 @keyframes scanline{0%,100%{top:10%}50%{top:85%}}
-
-/* RESULT */
-.result-box{background:#1e1e1e;border:1.5px solid #333;border-radius:10px;padding:12px;margin-bottom:12px;transition:border-color .3s}
+.result-box{background:#1e1e1e;border:1.5px solid #333;border-radius:10px;padding:12px;margin-bottom:10px;transition:border-color .3s}
 .result-box.has-result{border-color:#4e8fd4}
-.result-label{font-size:10px;color:#666;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
-.result-code{font-size:17px;font-weight:700;color:#4e8fd4;word-break:break-all;letter-spacing:.03em}
+.result-label{font-size:10px;color:#666;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.result-code{font-size:15px;font-weight:700;color:#4e8fd4;word-break:break-all}
 .result-code.empty{color:#444;font-size:13px;font-weight:400;font-style:italic}
-
-/* SUBMIT BTN */
-.submit-btn{width:100%;padding:15px;border-radius:10px;border:none;font-size:15px;font-weight:700;cursor:pointer;background:#4e8fd4;color:#fff;transition:all .15s;letter-spacing:.02em}
-.submit-btn:hover{background:#3a7fc0}
+.result-url{font-size:10px;color:#555;word-break:break-all;margin-top:2px}
+.links-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.links-row.hidden{display:none}
+.link-btn{padding:10px 8px;border-radius:8px;border:1px solid #333;background:#242424;color:#888;font-size:11px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;display:block}
+.link-btn.ptd{border-color:#4e8fd455;color:#4e8fd4;background:#1a2e4a}
+.link-btn.qc{border-color:#2ebc8a55;color:#2ebc8a;background:#1a3a2a}
+.foto-preview{width:100%;border-radius:10px;object-fit:cover;max-height:200px;margin-top:8px;display:none;border:1.5px solid #2ebc8a}
+.foto-btn-row{display:flex;gap:8px}
+.foto-btn{flex:1;padding:10px;border-radius:8px;border:1.5px solid #444;background:#2a2a2a;color:#aaa;font-size:12px;font-weight:600;cursor:pointer;text-align:center}
+.foto-btn:active{background:#333}
+.foto-status{font-size:11px;margin-top:6px;min-height:14px;text-align:center}
+.submit-btn{width:100%;padding:15px;border-radius:10px;border:none;font-size:15px;font-weight:700;cursor:pointer;background:#4e8fd4;color:#fff}
 .submit-btn:disabled{opacity:.35;cursor:not-allowed}
 .submit-btn:active{transform:scale(.98)}
 .submit-msg{text-align:center;font-size:12px;margin-top:8px;min-height:16px;font-weight:600}
-
 .manual-link{text-align:center;margin-top:12px;font-size:12px;color:#555}
 .manual-link span{color:#4e8fd4;cursor:pointer}
-
-/* JOBID input */
-.inp-field{width:100%;background:#1e1e1e;border:1.5px solid #444;border-radius:8px;color:#e8e8e8;padding:10px 12px;font-size:13px;margin-bottom:10px}
-.inp-field:focus{outline:none;border-color:#4e8fd4}
-.inp-label{font-size:11px;color:#666;font-weight:700;margin-bottom:4px;display:block}
-
-/* LOG */
 .log-filters{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .chip{padding:5px 12px;border-radius:20px;border:1px solid #333;background:#242424;color:#888;font-size:11px;font-weight:600;cursor:pointer}
 .chip.on{background:#1a2e4a;border-color:#4e8fd4;color:#4e8fd4}
 .log-item{background:#242424;border:1px solid #2a2a2a;border-radius:10px;padding:12px;margin-bottom:8px}
-.log-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.log-tid{font-size:13px;font-weight:700;color:#fff;word-break:break-all}
-.log-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;background:#1a2e4a;color:#4e8fd4;flex-shrink:0;margin-left:8px}
-.log-meta{display:flex;gap:8px;flex-wrap:wrap}
-.log-meta-item{font-size:10px;color:#666;display:flex;align-items:center;gap:3px}
+.log-item-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;gap:8px}
+.log-tid{font-size:13px;font-weight:700;color:#fff;word-break:break-all;flex:1}
+.log-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;background:#1a2e4a;color:#4e8fd4;flex-shrink:0}
+.log-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.log-meta-item{font-size:10px;color:#666}
+.log-links{display:flex;gap:6px;flex-wrap:wrap}
+.log-link{font-size:10px;padding:3px 8px;border-radius:5px;border:1px solid;text-decoration:none;font-weight:600}
+.log-link.ptd{border-color:#4e8fd455;color:#4e8fd4}
+.log-link.qc{border-color:#2ebc8a55;color:#2ebc8a}
+.log-link.foto{border-color:#d09030aa;color:#d09030}
 .log-empty{text-align:center;padding:3rem 1rem;color:#444;font-size:13px}
-
-/* DASHBOARD */
-.section-title{font-size:10px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
 .chart-wrap{position:relative;height:160px}
 .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.bar-label{font-size:11px;color:#aaa;width:70px;flex-shrink:0;text-align:right}
-.bar-track{flex:1;background:#2a2a2a;border-radius:4px;height:20px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;background:#4e8fd4;transition:width .6s;display:flex;align-items:center;justify-content:flex-end;padding-right:6px}
+.bar-label{font-size:11px;color:#aaa;width:75px;flex-shrink:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;background:#2a2a2a;border-radius:4px;height:22px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;min-width:28px}
 .bar-val{font-size:10px;font-weight:700;color:#fff}
 .refresh-btn{width:100%;padding:9px;background:#2a2a2a;border:1px solid #444;border-radius:8px;color:#888;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:14px}
 .refresh-btn:hover{background:#333;color:#fff}
-.today-badge{display:inline-flex;align-items:center;gap:4px;background:#1a3a2a;border:1px solid #2ebc8a44;border-radius:6px;padding:4px 10px;font-size:11px;color:#2ebc8a;margin-bottom:12px}
-
-.browser-warning{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#d09030;color:#000;padding:12px 16px;font-size:13px;font-weight:700;text-align:center;line-height:1.6}
-.browser-warning a{color:#000;text-decoration:underline;cursor:pointer;font-size:13px}
-
-.photo-wrap{background:#1e1e1e;border:1.5px dashed #444;border-radius:10px;padding:14px;margin-bottom:12px;text-align:center;cursor:pointer;transition:border-color .2s}
-.photo-wrap:hover{border-color:#4e8fd4}
-.photo-wrap.has-photo{border-color:#2ebc8a;border-style:solid}
-.photo-preview{width:100%;max-height:200px;object-fit:cover;border-radius:8px;display:none;margin-bottom:8px}
-.photo-preview.show{display:block}
-.photo-label{font-size:12px;color:#666;margin-top:4px}
-.photo-label span{color:#4e8fd4}
-.upload-progress{display:none;margin-top:8px;font-size:11px;color:#d09030;font-weight:600}
-.upload-progress.show{display:block}
 </style>
 </head>
 <body>
 
-
-<div class="browser-warning" id="browser-warning">
-  ⚠️ Kamera tidak bisa aktif di WhatsApp/Instagram browser.<br>
-  <a onclick="openInBrowser()">👆 Tap di sini untuk buka di Chrome →</a>
-</div>
-<div class="topbar" style="margin-top:0">
+<div class="topbar">
   <div class="topbar-left">
     <div class="topbar-icon">📦</div>
     <div>
@@ -146,7 +113,7 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
   </div>
 </div>
 
-<!-- ══════════ SCAN PAGE ══════════ -->
+<!-- SCAN PAGE -->
 <div class="page on" id="page-scan">
 
   <div class="card">
@@ -154,7 +121,7 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
     <select class="operator-select" id="sel-operator">
       <option value="">— Select operator —</option>
       <option>Arya</option><option>Asep</option><option>Bram</option>
-      <option>Dhany H</option><option>Kevin</option><option>Nana</option><option>Rahmad</option><option>Rusli</option>
+      <option>Dhany H</option><option>Kevin</option><option>Nana</option><option>Rusli</option>
     </select>
     <div class="card-title">📍 Warehouse Location</div>
     <div class="location-row">
@@ -180,22 +147,35 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
         </div>
       </div>
     </div>
-
     <div class="result-box" id="result-box">
       <div class="result-label">Terminal ID</div>
       <div class="result-code empty" id="scanned-code">Waiting for scan…</div>
+      <div class="result-url" id="scanned-url"></div>
     </div>
-</div>
+    <div class="links-row hidden" id="links-row">
+      <a class="link-btn ptd" id="link-ptd" href="#" target="_blank">📋 Open PTD Form</a>
+      <a class="link-btn qc" id="link-qc" href="#" target="_blank">✅ Open QC Form</a>
+    </div>
+  </div>
 
-  <button class="submit-btn" id="submit-btn" onclick="submitScan()" disabled>
-    ✅ Record PTD
-  </button>
+  <div class="card">
+    <div class="card-title">📸 Foto Mesin</div>
+    <div class="foto-btn-row">
+      <label class="foto-btn" for="foto-input">📷 Ambil Foto</label>
+      <label class="foto-btn" for="foto-gallery">🖼️ Dari Galeri</label>
+    </div>
+    <input type="file" id="foto-input" accept="image/*" capture="environment" style="display:none" onchange="previewFoto(this)">
+    <input type="file" id="foto-gallery" accept="image/*" style="display:none" onchange="previewFoto(this)">
+    <img id="foto-preview" class="foto-preview" alt="Preview foto mesin">
+    <div class="foto-status" id="foto-status"></div>
+  </div>
+
+  <button class="submit-btn" id="submit-btn" onclick="submitScan()" disabled>✅ Record PTD</button>
   <p class="submit-msg" id="submit-msg"></p>
-
   <div class="manual-link">Can't scan? <span onclick="manualInput()">Enter Terminal ID manually</span></div>
 </div>
 
-<!-- ══════════ LOG PAGE ══════════ -->
+<!-- LOG PAGE -->
 <div class="page" id="page-log">
   <button class="refresh-btn" onclick="loadLog()">↻ Refresh Log</button>
   <div class="log-filters" id="log-filters">
@@ -209,69 +189,53 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
   <div id="log-list"><div class="log-empty">Loading…</div></div>
 </div>
 
-<!-- ══════════ DASHBOARD PAGE ══════════ -->
+<!-- DASHBOARD PAGE -->
 <div class="page" id="page-dash">
   <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh Dashboard</button>
-
   <div class="metric-grid">
     <div class="metric-card"><div class="metric-val" id="d-total">—</div><div class="metric-label">Total PTD</div></div>
     <div class="metric-card"><div class="metric-val" id="d-today">—</div><div class="metric-label">Today</div></div>
   </div>
-
   <div class="card">
     <div class="card-title">📍 By Location</div>
     <div id="bar-location"></div>
   </div>
-
   <div class="card">
     <div class="card-title">👤 By Operator</div>
     <div id="bar-operator"></div>
   </div>
-
   <div class="card">
     <div class="card-title">📅 Last 7 Days Trend</div>
     <div class="chart-wrap"><canvas id="chart-trend"></canvas></div>
   </div>
 </div>
 
-<!-- BOTTOM TABS -->
 <div class="bottom-tab">
-  <div class="tab-item on" onclick="switchPage('scan',this)">
-    <span class="tab-icon">📷</span>Scan
-  </div>
-  <div class="tab-item" onclick="switchPage('log',this)">
-    <span class="tab-icon">📋</span>Log
-  </div>
-  <div class="tab-item" onclick="switchPage('dash',this)">
-    <span class="tab-icon">📊</span>Dashboard
-  </div>
+  <div class="tab-item on" onclick="switchPage('scan',this)"><span class="tab-icon">📷</span>Scan</div>
+  <div class="tab-item" onclick="switchPage('log',this)"><span class="tab-icon">📋</span>Log</div>
+  <div class="tab-item" onclick="switchPage('dash',this)"><span class="tab-icon">📊</span>Dashboard</div>
 </div>
 
 <script>
-// ══ CONFIG — ganti URL setelah deploy Apps Script ══
-const GAS_URL = 'https://script.google.com/macros/s/AKfycby5G8M3yTv5t_Ldlf5eietQdKYBsEHcLV8EWkDZQwlK-2thF92BDpbjUoafSUeScx2BdA/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbx9g9l3Ch_DUsCcDu1NJMnJGjOc6gWcSIq3KRtDSG2JFOC-SldpEk_8rI-DWmmoEKLdtw/exec';
+const LOC_COLORS={'Jakarta':'#4e8fd4','Bandung':'#2ebc8a','Surabaya':'#e07050','Bali':'#d46080','Jogja':'#d09030'};
 
-const OPERATORS = ['Arya','Asep','Bram','Dhany H','Kevin','Nana','Rahmad','Rusli'];
-const LOCATIONS = ['Jakarta','Bandung','Surabaya','Bali','Jogja'];
-const LOC_COLORS= {'Jakarta':'#4e8fd4','Bandung':'#2ebc8a','Surabaya':'#e07050','Bali':'#d46080','Jogja':'#d09030'};
+let scanner=null,scannedCode='',scannedUrl='',selectedLoc='';
+let logData=[],logFilter='ALL',isSubmitting=false;
+let fotoBase64='',trendChart=null;
 
-let scanner=null, scannedCode='', selectedLoc='', logData=[], logFilter='ALL', isSubmitting=false, trendChart=null;
-
-// ─── SYNC STATUS ──────────────────────────
 function setSyncStatus(state,msg){
-  const dot=document.getElementById('sync-dot');
-  dot.className='sync-dot'+(state==='green'?' green':state==='red'?' red':'');
+  const d=document.getElementById('sync-dot');
+  d.className='sync-dot'+(state==='green'?' green':state==='red'?' red':'');
   document.getElementById('sync-msg').textContent=msg;
 }
 
-// ─── LOCATION ─────────────────────────────
 function setLoc(loc,el){
   selectedLoc=loc;
   document.querySelectorAll('.loc-btn').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
 }
 
-// ─── SCANNER ──────────────────────────────
 function initScanner(){
   if(scanner) return;
   scanner=new Html5Qrcode("qr-reader");
@@ -280,102 +244,115 @@ function initScanner(){
     const cam=cams[cams.length-1];
     scanner.start(cam.id,{fps:10,qrbox:{width:230,height:230},aspectRatio:1},onScan,()=>{})
       .then(()=>setSyncStatus('green','Camera ready'))
-      .catch(e=>setSyncStatus('red','Camera error'));
-  }).catch(()=>setSyncStatus('red','Camera denied'));
+      .catch(()=>setSyncStatus('red','Camera error — open in Chrome'));
+  }).catch(()=>setSyncStatus('red','Camera denied — open in Chrome'));
 }
 
-function onScan(code){
-  if(scannedCode===code) return;
-  scannedCode=code;
+function extractTID(raw){
+  try{const url=new URL(raw);const parts=url.pathname.split('/').filter(Boolean);return parts[parts.length-1];}
+  catch(e){return raw;}
+}
+
+function onScan(raw){
+  if(scannedUrl===raw) return;
+  scannedUrl=raw;
+  scannedCode=extractTID(raw);
   const el=document.getElementById('scanned-code');
-  el.textContent=code; el.classList.remove('empty');
+  el.textContent=scannedCode; el.classList.remove('empty');
+  document.getElementById('scanned-url').textContent=raw.startsWith('http')?raw:'';
   document.getElementById('result-box').classList.add('has-result');
   document.getElementById('submit-btn').disabled=false;
   if(navigator.vibrate) navigator.vibrate([80,30,80]);
-  setSyncStatus('green','✓ Code detected!');
+  setSyncStatus('green','✓ Scanned: '+scannedCode);
 }
 
-// ─── SUBMIT ───────────────────────────────
+function previewFoto(input){
+  const file=input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    fotoBase64=e.target.result.split(',')[1];
+    const img=document.getElementById('foto-preview');
+    img.src=e.target.result; img.style.display='block';
+    document.getElementById('foto-status').textContent='📸 Photo ready';
+    document.getElementById('foto-status').style.color='#2ebc8a';
+  };
+  reader.readAsDataURL(file);
+}
+
 async function submitScan(){
   if(isSubmitting||!scannedCode) return;
   const operator=document.getElementById('sel-operator').value;
   if(!operator){showMsg('Please select operator!','#c04040');return;}
   if(!selectedLoc){showMsg('Please select location!','#c04040');return;}
-
   isSubmitting=true;
   const btn=document.getElementById('submit-btn');
   btn.disabled=true; btn.textContent='Saving…';
   showMsg('Sending to Google Sheets…','#888');
-
-  // Ekstrak Terminal ID dari URL kalau scannedCode berisi full URL
-  let terminalId = scannedCode;
-  if(scannedCode.includes('recharge.id/t/')) {
-    terminalId = scannedCode.split('/t/').pop().trim();
-  }
-
-  const row={
-    nama: operator,
-    terminalId: terminalId,
-    location: selectedLoc,
-    photoBase64: photoBase64,
-    photoName: photoName
-  };
-
+  const row={nama:operator,terminalId:scannedCode,tidScanned:scannedUrl||scannedCode,location:selectedLoc};
   try{
     const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'scan',row})});
     const json=await res.json();
-    if(json.status==='ok'){
-      showMsg('✅ PTD Recorded!','#2ebc8a');
-      setSyncStatus('green','Synced · '+new Date().toLocaleTimeString());
-      // push to local log
-      logData.unshift({terminalId:terminalId,nama:operator,location:selectedLoc,timestamp:new Date().toLocaleString()});
-      setTimeout(resetScan,1800);
-    } else throw new Error(json.message);
+    if(json.status!=='ok') throw new Error(json.message);
+    if(json.linkPTD){
+      document.getElementById('link-ptd').href=json.linkPTD;
+      document.getElementById('link-qc').href=json.linkQC2||'#';
+      document.getElementById('links-row').classList.remove('hidden');
+    }
+    if(fotoBase64){
+      showMsg('📸 Uploading photo…','#d09030');
+      document.getElementById('foto-status').textContent='Uploading to Drive…';
+      const fname='PTD_'+scannedCode+'_'+Date.now()+'.jpg';
+      const fRes=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'uploadFoto',base64:fotoBase64,filename:fname,terminalId:scannedCode})});
+      const fJson=await fRes.json();
+      if(fJson.status==='ok'){
+        document.getElementById('foto-status').textContent='✅ Photo uploaded!';
+        document.getElementById('foto-status').style.color='#2ebc8a';
+      }
+    }
+    setSyncStatus('green','Synced · '+new Date().toLocaleTimeString());
+    showMsg('✅ PTD Recorded!','#2ebc8a');
+    setTimeout(resetScan,2500);
   }catch(e){
     showMsg('⚠ Failed: '+e.message,'#c04040');
-    setSyncStatus('red','GSheet error');
+    setSyncStatus('red','Error');
     btn.disabled=false; btn.textContent='✅ Record PTD';
   }
   isSubmitting=false;
 }
 
 function resetScan(){
-  scannedCode='';
+  scannedCode=''; scannedUrl=''; fotoBase64='';
   const el=document.getElementById('scanned-code');
   el.textContent='Waiting for scan…'; el.classList.add('empty');
+  document.getElementById('scanned-url').textContent='';
   document.getElementById('result-box').classList.remove('has-result');
+  document.getElementById('foto-preview').style.display='none';
+  document.getElementById('foto-status').textContent='';
+  document.getElementById('links-row').classList.add('hidden');
+  document.getElementById('foto-input').value='';
+  document.getElementById('foto-gallery').value='';
   const btn=document.getElementById('submit-btn');
   btn.disabled=true; btn.textContent='✅ Record PTD';
   showMsg('','');
 }
 
-function showMsg(t,c){
-  const el=document.getElementById('submit-msg');
-  el.textContent=t; el.style.color=c;
-}
+function showMsg(t,c){const el=document.getElementById('submit-msg');el.textContent=t;el.style.color=c;}
+function manualInput(){const code=prompt('Enter Terminal ID or URL:');if(code&&code.trim()) onScan(code.trim());}
 
-function manualInput(){
-  const code=prompt('Enter Terminal ID:');
-  if(code&&code.trim()) onScan(code.trim());
-}
-
-// ─── LOG ──────────────────────────────────
 async function loadLog(){
   document.getElementById('log-list').innerHTML='<div class="log-empty">Loading…</div>';
   try{
     const res=await fetch(GAS_URL+'?action=getLog');
     const json=await res.json();
-    if(json.status==='ok'){ logData=json.data; renderLog(); }
-  }catch(e){
-    document.getElementById('log-list').innerHTML='<div class="log-empty">Failed to load.</div>';
-  }
+    if(json.status==='ok'){logData=json.data;renderLog();}
+  }catch(e){document.getElementById('log-list').innerHTML='<div class="log-empty">Failed to load.</div>';}
 }
 
 function filterLog(f,el){
   logFilter=f;
   document.querySelectorAll('#log-filters .chip').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on');
-  renderLog();
+  el.classList.add('on'); renderLog();
 }
 
 function renderLog(){
@@ -390,15 +367,18 @@ function renderLog(){
       </div>
       <div class="log-meta">
         <div class="log-meta-item">👤 ${r.nama||'-'}</div>
-
-        <div class="log-meta-item">🕐 ${r.timestamp||''}</div>
-        ${r.fotoMesin?`<div class="log-meta-item"><a href="${r.fotoMesin}" target="_blank" style="color:#4e8fd4">📸 Lihat foto</a></div>`:''}
+        <div class="log-meta-item">🕐 ${r.time||''}</div>
+        <div class="log-meta-item">📅 ${r.date||''}</div>
+      </div>
+      <div class="log-links">
+        ${r.linkPTD?`<a class="log-link ptd" href="${r.linkPTD}" target="_blank">📋 PTD Form</a>`:''}
+        ${r.linkQC2?`<a class="log-link qc" href="${r.linkQC2}" target="_blank">✅ QC Form</a>`:''}
+        ${r.foto?`<a class="log-link foto" href="${r.foto}" target="_blank">📸 Foto</a>`:''}
       </div>
     </div>
   `).join('');
 }
 
-// ─── DASHBOARD ────────────────────────────
 async function loadDashboard(){
   try{
     const res=await fetch(GAS_URL+'?action=getSummary');
@@ -411,23 +391,19 @@ function renderDashboard(json){
   document.getElementById('d-total').textContent=(json.total||0).toLocaleString();
   const today=new Date().toISOString().slice(0,10);
   document.getElementById('d-today').textContent=(json.byDate[today]||0).toLocaleString();
-
-  // location bars
-  renderBars('bar-location', json.byLocation, LOC_COLORS);
-  // operator bars
-  const opColors={};
+  renderBars('bar-location',json.byLocation,LOC_COLORS);
   const opPal=['#4e8fd4','#2ebc8a','#e07050','#d46080','#d09030','#7060c0','#80b840'];
+  const opColors={};
   Object.keys(json.byOperator).forEach((k,i)=>opColors[k]=opPal[i%opPal.length]);
-  renderBars('bar-operator', json.byOperator, opColors);
-
-  // trend last 7 days
-  const days=[];
+  renderBars('bar-operator',json.byOperator,opColors);
+  const days=[],labels=[],vals=[];
   for(let i=6;i>=0;i--){
-    const d=new Date(); d.setDate(d.getDate()-i);
-    days.push(d.toISOString().slice(0,10));
+    const d=new Date();d.setDate(d.getDate()-i);
+    const dk=d.toISOString().slice(0,10);
+    days.push(dk);
+    labels.push(`${d.getDate()}/${d.getMonth()+1}`);
+    vals.push(json.byDate[dk]||0);
   }
-  const labels=days.map(d=>{const[,m,dd]=d.split('-');return `${parseInt(dd)}/${parseInt(m)}`;});
-  const vals=days.map(d=>json.byDate[d]||0);
   if(trendChart) trendChart.destroy();
   trendChart=new Chart(document.getElementById('chart-trend'),{
     type:'line',
@@ -436,13 +412,12 @@ function renderDashboard(json){
   });
 }
 
-function renderBars(elId, data, colors){
+function renderBars(elId,data,colors){
   const el=document.getElementById(elId);
   const max=Math.max(...Object.values(data),1);
-  const sorted=Object.entries(data).sort((a,b)=>b[1]-a[1]);
-  el.innerHTML=sorted.map(([k,v])=>`
+  el.innerHTML=Object.entries(data).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
     <div class="bar-row">
-      <div class="bar-label">${k}</div>
+      <div class="bar-label" title="${k}">${k}</div>
       <div class="bar-track">
         <div class="bar-fill" style="width:${Math.round((v/max)*100)}%;background:${colors[k]||'#4e8fd4'}">
           <span class="bar-val">${v}</span>
@@ -452,7 +427,6 @@ function renderBars(elId, data, colors){
   `).join('');
 }
 
-// ─── PAGES ────────────────────────────────
 function switchPage(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('on'));
@@ -461,77 +435,6 @@ function switchPage(page,el){
   if(page==='scan'&&!scanner) initScanner();
   if(page==='log') loadLog();
   if(page==='dash') loadDashboard();
-}
-
-// ─── INIT ─────────────────────────────────
-
-// ─── IN-APP BROWSER DETECTION ────────────────────────────────
-(function(){
-  const ua = navigator.userAgent || '';
-  const isInApp = /FBAN|FBAV|Instagram|WhatsApp|Line|Twitter|Snapchat|MicroMessenger/.test(ua);
-  if(isInApp){
-    document.getElementById('browser-warning').style.display = 'block';
-    document.body.style.paddingTop = '70px';
-  }
-})();
-
-function openInBrowser(){
-  const url = window.location.href;
-  // Android intent
-  const intent = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
-  window.location.href = intent;
-  // Fallback: copy to clipboard
-  setTimeout(function(){
-    if(navigator.clipboard){
-      navigator.clipboard.writeText(url).then(function(){
-        alert('Link sudah di-copy! Buka Chrome dan paste di address bar.');
-      });
-    } else {
-      alert('Buka Chrome dan ketik: ptd-scanner.vercel.app');
-    }
-  }, 1000);
-}
-
-
-// ─── PHOTO ────────────────────────────────────────────────────
-let photoBase64 = '';
-let photoName   = '';
-
-function triggerPhoto(){
-  document.getElementById('photo-input').click();
-}
-
-function handlePhoto(input){
-  const file = input.files[0];
-  if(!file) return;
-  photoName = file.name;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    photoBase64 = e.target.result;
-    const preview = document.getElementById('photo-preview');
-    const wrap    = document.getElementById('photo-wrap');
-    const label   = document.getElementById('photo-label');
-    preview.src = photoBase64;
-    preview.classList.add('show');
-    wrap.classList.add('has-photo');
-    label.innerHTML = '✅ <span>Foto siap diupload</span>';
-  };
-  reader.readAsDataURL(file);
-}
-
-function clearPhoto(){
-  photoBase64 = '';
-  photoName   = '';
-  const preview = document.getElementById('photo-preview');
-  const wrap    = document.getElementById('photo-wrap');
-  const label   = document.getElementById('photo-label');
-  if(preview){ preview.src=''; preview.classList.remove('show'); }
-  if(wrap) wrap.classList.remove('has-photo');
-  if(label) label.innerHTML = '📷 <span>Tap untuk ambil / pilih foto</span>';
-  const pi = document.getElementById('photo-input');
-  if(pi) pi.value='';
-  const up = document.getElementById('upload-progress');
-  if(up) up.classList.remove('show');
 }
 
 setSyncStatus('yellow','Starting…');
