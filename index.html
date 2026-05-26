@@ -6,6 +6,7 @@
 <title>PTD Zero Mistake Tool</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh;padding-bottom:60px}
@@ -69,6 +70,7 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 .submit-btn{width:100%;padding:15px;border-radius:10px;border:none;font-size:15px;font-weight:700;cursor:pointer;background:#4e8fd4;color:#fff}
 .submit-btn:disabled{opacity:.35;cursor:not-allowed}
 .submit-btn:active{transform:scale(.98)}
+.submit-btn.sim{background:#9b59b6}
 .submit-msg{text-align:center;font-size:12px;margin-top:8px;min-height:16px;font-weight:600}
 .manual-link{text-align:center;margin-top:12px;font-size:12px;color:#555}
 .manual-link span{color:#4e8fd4;cursor:pointer}
@@ -79,6 +81,7 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 .log-item-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;gap:8px}
 .log-tid{font-size:13px;font-weight:700;color:#fff;word-break:break-all;flex:1}
 .log-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;background:#1a2e4a;color:#4e8fd4;flex-shrink:0}
+.log-badge.sim{background:#2d1a4a;color:#9b59b6}
 .log-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
 .log-meta-item{font-size:10px;color:#666}
 .log-links{display:flex;gap:6px;flex-wrap:wrap}
@@ -95,6 +98,20 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 .bar-val{font-size:10px;font-weight:700;color:#fff}
 .refresh-btn{width:100%;padding:9px;background:#2a2a2a;border:1px solid #444;border-radius:8px;color:#888;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:14px}
 .refresh-btn:hover{background:#333;color:#fff}
+/* SIM PAGE */
+.sim-field-wrap{margin-bottom:12px}
+.sim-field-label{font-size:10px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.sim-input{width:100%;background:#1e1e1e;border:1.5px solid #444;border-radius:8px;color:#e8e8e8;padding:10px 12px;font-size:15px;font-weight:700;letter-spacing:.04em}
+.sim-input:focus{outline:none;border-color:#9b59b6}
+.sim-input.filled{border-color:#9b59b6;color:#c084fc}
+.ocr-status{font-size:11px;margin-top:6px;min-height:16px;text-align:center;font-weight:600}
+.ocr-progress{width:100%;height:4px;background:#2a2a2a;border-radius:2px;margin-top:8px;overflow:hidden;display:none}
+.ocr-bar{height:100%;background:#9b59b6;border-radius:2px;transition:width .3s;width:0%}
+.sim-foto-preview{width:100%;border-radius:10px;object-fit:cover;max-height:220px;margin-top:8px;display:none;border:1.5px solid #9b59b6}
+.log-tab-row{display:flex;gap:6px;margin-bottom:10px}
+.log-tab{flex:1;padding:7px;border-radius:8px;border:1px solid #333;background:#242424;color:#666;font-size:11px;font-weight:700;cursor:pointer;text-align:center}
+.log-tab.on{background:#1a2e4a;border-color:#4e8fd4;color:#4e8fd4}
+.log-tab.on.sim{background:#2d1a4a;border-color:#9b59b6;color:#9b59b6}
 </style>
 </head>
 <body>
@@ -115,13 +132,12 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 
 <!-- SCAN PAGE -->
 <div class="page on" id="page-scan">
-
   <div class="card">
-    <div class="card-title">👤 Operator</div>
+    <div class="card-title">👤 Nama</div>
     <select class="operator-select" id="sel-operator">
-      <option value="">— Select operator —</option>
-      <option>Arya</option><option>Asep</option><option>Bram</option>
-      <option>Dhany H</option><option>Kevin</option><option>Nana</option><option>Rusli</option>
+      <option value="">— Pilih nama —</option>
+      <option>Arya</option><option>Bram</option>
+      <option>Dhany H</option><option>Kevin</option><option>Nana</option><option>Rahmad</option><option>Rusli</option>
     </select>
     <div class="card-title">📍 Warehouse Location</div>
     <div class="location-row">
@@ -164,8 +180,8 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
       <label class="foto-btn" for="foto-input">📷 Ambil Foto</label>
       <label class="foto-btn" for="foto-gallery">🖼️ Dari Galeri</label>
     </div>
-    <input type="file" id="foto-input" accept="image/*" capture="environment" style="display:none" onchange="previewFoto(this)">
-    <input type="file" id="foto-gallery" accept="image/*" style="display:none" onchange="previewFoto(this)">
+    <input type="file" id="foto-input" accept="image/*" capture="environment" style="display:none" onchange="previewFoto(this,'foto-preview','foto-status')">
+    <input type="file" id="foto-gallery" accept="image/*" style="display:none" onchange="previewFoto(this,'foto-preview','foto-status')">
     <img id="foto-preview" class="foto-preview" alt="Preview foto mesin">
     <div class="foto-status" id="foto-status"></div>
   </div>
@@ -175,9 +191,61 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
   <div class="manual-link">Can't scan? <span onclick="manualInput()">Enter Terminal ID manually</span></div>
 </div>
 
+<!-- SIM PAGE -->
+<div class="page" id="page-sim">
+  <div class="card">
+    <div class="card-title">👤 Nama</div>
+    <select class="operator-select" id="sim-sel-operator">
+      <option value="">— Pilih nama —</option>
+      <option>Arya</option><option>Bram</option>
+      <option>Dhany H</option><option>Kevin</option><option>Nana</option><option>Rahmad</option><option>Rusli</option>
+    </select>
+    <div class="card-title">📍 Warehouse Location</div>
+    <div class="location-row" id="sim-loc-row">
+      <div class="loc-btn" onclick="setSimLoc('Jakarta',this)">Jakarta</div>
+      <div class="loc-btn" onclick="setSimLoc('Bandung',this)">Bandung</div>
+      <div class="loc-btn" onclick="setSimLoc('Surabaya',this)">Surabaya</div>
+      <div class="loc-btn" onclick="setSimLoc('Bali',this)">Bali</div>
+      <div class="loc-btn" onclick="setSimLoc('Jogja',this)">Jogja</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📸 Foto Package SIM Card</div>
+    <div class="foto-btn-row">
+      <label class="foto-btn" for="sim-foto-input">📷 Ambil Foto</label>
+      <label class="foto-btn" for="sim-foto-gallery">🖼️ Dari Galeri</label>
+    </div>
+    <input type="file" id="sim-foto-input" accept="image/*" capture="environment" style="display:none" onchange="simPreviewAndOCR(this)">
+    <input type="file" id="sim-foto-gallery" accept="image/*" style="display:none" onchange="simPreviewAndOCR(this)">
+    <img id="sim-foto-preview" class="sim-foto-preview" alt="Preview foto simcard">
+    <div class="ocr-progress" id="ocr-progress"><div class="ocr-bar" id="ocr-bar"></div></div>
+    <div class="ocr-status" id="ocr-status"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Hasil OCR — Bisa Diedit Manual</div>
+    <div class="sim-field-wrap">
+      <div class="sim-field-label">📞 No Simcard</div>
+      <input class="sim-input" id="sim-no" type="tel" placeholder="Contoh: 0812-3456-7890" oninput="checkSimReady()">
+    </div>
+    <div class="sim-field-wrap">
+      <div class="sim-field-label">🔢 Seri Simcard (ICCID)</div>
+      <input class="sim-input" id="sim-seri" type="text" placeholder="Contoh: 6289xxxxxxxxxxxxxxx" oninput="checkSimReady()">
+    </div>
+  </div>
+
+  <button class="submit-btn sim" id="sim-submit-btn" onclick="submitSim()" disabled>💾 Record SIM Card</button>
+  <p class="submit-msg" id="sim-submit-msg"></p>
+</div>
+
 <!-- LOG PAGE -->
 <div class="page" id="page-log">
-  <button class="refresh-btn" onclick="loadLog()">↻ Refresh Log</button>
+  <div class="log-tab-row">
+    <div class="log-tab on" id="log-tab-ptd" onclick="switchLogTab('ptd')">📦 PTD Log</div>
+    <div class="log-tab" id="log-tab-sim" onclick="switchLogTab('sim')">📱 SIM Log</div>
+  </div>
+  <button class="refresh-btn" onclick="loadActiveLog()">↻ Refresh Log</button>
   <div class="log-filters" id="log-filters">
     <div class="chip on" onclick="filterLog('ALL',this)">All</div>
     <div class="chip" onclick="filterLog('Jakarta',this)">Jakarta</div>
@@ -196,22 +264,27 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
     <div class="metric-card"><div class="metric-val" id="d-total">—</div><div class="metric-label">Total PTD</div></div>
     <div class="metric-card"><div class="metric-val" id="d-today">—</div><div class="metric-label">Today</div></div>
   </div>
+  <div class="metric-grid">
+    <div class="metric-card"><div class="metric-val" id="d-sim-total">—</div><div class="metric-label">Total SIM</div></div>
+    <div class="metric-card"><div class="metric-val" id="d-sim-today">—</div><div class="metric-label">SIM Today</div></div>
+  </div>
   <div class="card">
     <div class="card-title">📍 By Location</div>
     <div id="bar-location"></div>
   </div>
   <div class="card">
-    <div class="card-title">👤 By Operator</div>
+    <div class="card-title">👤 By Nama</div>
     <div id="bar-operator"></div>
   </div>
   <div class="card">
-    <div class="card-title">📅 Last 7 Days Trend</div>
+    <div class="card-title">📅 Last 7 Days Trend (PTD)</div>
     <div class="chart-wrap"><canvas id="chart-trend"></canvas></div>
   </div>
 </div>
 
 <div class="bottom-tab">
-  <div class="tab-item on" onclick="switchPage('scan',this)"><span class="tab-icon">📷</span>Scan</div>
+  <div class="tab-item on" onclick="switchPage('scan',this)"><span class="tab-icon">📷</span>PTD Scan</div>
+  <div class="tab-item" onclick="switchPage('sim',this)"><span class="tab-icon">📱</span>SIM Card</div>
   <div class="tab-item" onclick="switchPage('log',this)"><span class="tab-icon">📋</span>Log</div>
   <div class="tab-item" onclick="switchPage('dash',this)"><span class="tab-icon">📊</span>Dashboard</div>
 </div>
@@ -221,31 +294,50 @@ const GAS_URL='https://script.google.com/macros/s/AKfycbx9g9l3Ch_DUsCcDu1NJMnJGj
 const LOC_COLORS={'Jakarta':'#4e8fd4','Bandung':'#2ebc8a','Surabaya':'#e07050','Bali':'#d46080','Jogja':'#d09030'};
 
 let scanner=null,scannedCode='',scannedUrl='',selectedLoc='';
-let logData=[],logFilter='ALL',isSubmitting=false;
+let logData=[],simLogData=[],logFilter='ALL',activeLogTab='ptd',isSubmitting=false;
 let fotoBase64='',trendChart=null;
+let simFotoBase64='',selectedSimLoc='',isSimSubmitting=false;
 
+// ── SYNC STATUS ──
 function setSyncStatus(state,msg){
   const d=document.getElementById('sync-dot');
   d.className='sync-dot'+(state==='green'?' green':state==='red'?' red':'');
   document.getElementById('sync-msg').textContent=msg;
 }
 
+// ── LOCATION ──
 function setLoc(loc,el){
   selectedLoc=loc;
-  document.querySelectorAll('.loc-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#page-scan .loc-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+}
+function setSimLoc(loc,el){
+  selectedSimLoc=loc;
+  document.querySelectorAll('#sim-loc-row .loc-btn').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
 }
 
+// ── QR SCANNER ──
 function initScanner(){
   if(scanner) return;
   scanner=new Html5Qrcode("qr-reader");
+  startScanner();
+}
+
+function startScanner(){
+  if(scannerRunning||!scanner) return;
   Html5Qrcode.getCameras().then(cams=>{
     if(!cams||!cams.length){setSyncStatus('red','No camera');return;}
     const cam=cams[cams.length-1];
     scanner.start(cam.id,{fps:10,qrbox:{width:230,height:230},aspectRatio:1},onScan,()=>{})
-      .then(()=>setSyncStatus('green','Camera ready'))
+      .then(()=>{scannerRunning=true;setSyncStatus('green','Camera ready');})
       .catch(()=>setSyncStatus('red','Camera error — open in Chrome'));
   }).catch(()=>setSyncStatus('red','Camera denied — open in Chrome'));
+}
+
+function stopScanner(){
+  if(!scanner||!scannerRunning) return;
+  scanner.stop().then(()=>{scannerRunning=false;}).catch(()=>{});
 }
 
 function extractTID(raw){
@@ -266,36 +358,146 @@ function onScan(raw){
   setSyncStatus('green','✓ Scanned: '+scannedCode);
 }
 
-function previewFoto(input){
-  const file=input.files[0];
-  if(!file) return;
-  document.getElementById('foto-status').textContent='Compressing…';
-  document.getElementById('foto-status').style.color='#d09030';
+// ── FOTO COMPRESS (shared) ──
+function compressImage(file, callback){
   const reader=new FileReader();
   reader.onload=e=>{
-    const origImg=new Image();
-    origImg.onload=()=>{
-      const MAX=1200, quality=0.70;
-      let w=origImg.width, h=origImg.height;
+    const img=new Image();
+    img.onload=()=>{
+      const MAX=1200,quality=0.70;
+      let w=img.width,h=img.height;
       if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}
       else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}
       const canvas=document.createElement('canvas');
-      canvas.width=w; canvas.height=h;
-      canvas.getContext('2d').drawImage(origImg,0,0,w,h);
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
       const compressed=canvas.toDataURL('image/jpeg',quality);
-      fotoBase64=compressed.split(',')[1];
       const origKB=Math.round(file.size/1024);
-      const newKB=Math.round(fotoBase64.length*0.75/1024);
-      const img=document.getElementById('foto-preview');
-      img.src=compressed; img.style.display='block';
-      document.getElementById('foto-status').textContent=`📸 Ready · ${origKB}KB → ${newKB}KB`;
-      document.getElementById('foto-status').style.color='#2ebc8a';
+      const newKB=Math.round(compressed.length*0.75/1024);
+      callback(compressed,origKB,newKB);
     };
-    origImg.src=e.target.result;
+    img.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
+function previewFoto(input,previewId,statusId){
+  const file=input.files[0];
+  if(!file) return;
+  document.getElementById(statusId).textContent='Compressing…';
+  document.getElementById(statusId).style.color='#d09030';
+  compressImage(file,(compressed,origKB,newKB)=>{
+    fotoBase64=compressed.split(',')[1];
+    const img=document.getElementById(previewId);
+    img.src=compressed;img.style.display='block';
+    document.getElementById(statusId).textContent=`📸 Ready · ${origKB}KB → ${newKB}KB`;
+    document.getElementById(statusId).style.color='#2ebc8a';
+  });
+}
+
+// ── SIM OCR ──
+function simPreviewAndOCR(input){
+  const file=input.files[0];
+  if(!file) return;
+  document.getElementById('ocr-status').textContent='Compressing…';
+  document.getElementById('ocr-status').style.color='#d09030';
+  document.getElementById('ocr-progress').style.display='block';
+  document.getElementById('ocr-bar').style.width='0%';
+
+  compressImage(file,(compressed,origKB,newKB)=>{
+    simFotoBase64=compressed.split(',')[1];
+    const img=document.getElementById('sim-foto-preview');
+    img.src=compressed;img.style.display='block';
+    document.getElementById('ocr-status').textContent='🔍 Membaca teks dari foto…';
+    document.getElementById('ocr-status').style.color='#9b59b6';
+    runOCR(compressed);
+  });
+}
+
+async function runOCR(imageSrc){
+  try{
+    const worker=await Tesseract.createWorker('eng',1,{
+      logger:m=>{
+        if(m.status==='recognizing text'){
+          const pct=Math.round((m.progress||0)*100);
+          document.getElementById('ocr-bar').style.width=pct+'%';
+        }
+      }
+    });
+    const result=await worker.recognize(imageSrc);
+    await worker.terminate();
+    const text=result.data.text;
+    extractSimNumbers(text);
+  }catch(e){
+    document.getElementById('ocr-status').textContent='⚠ OCR gagal, isi manual ya bro';
+    document.getElementById('ocr-status').style.color='#c04040';
+    document.getElementById('ocr-progress').style.display='none';
+  }
+}
+
+function extractSimNumbers(text){
+  // Normalize: hapus spasi & strip non-useful chars
+  const clean=text.replace(/[^\d\-\s]/g,' ').replace(/\s+/g,' ');
+
+  // Cari No Simcard: format 08xx-xxxx-xxxx atau 08xxxxxxxxxx (10-13 digit dimulai 08)
+  let noSim='';
+  const noMatch=text.match(/0\s*8\s*[\d\s\-]{8,14}/g);
+  if(noMatch){
+    // ambil yang paling mirip format HP
+    for(const m of noMatch){
+      const digits=m.replace(/\D/g,'');
+      if(digits.length>=10&&digits.length<=13&&digits.startsWith('08')){
+        // format jadi 0812-3456-7890
+        if(digits.length===12) noSim=digits.slice(0,4)+'-'+digits.slice(4,8)+'-'+digits.slice(8);
+        else if(digits.length===11) noSim=digits.slice(0,4)+'-'+digits.slice(4,7)+'-'+digits.slice(7);
+        else noSim=digits;
+        break;
+      }
+    }
+  }
+
+  // Cari ICCID: 62 diikuti 15-18 digit (total 17-20 digit)
+  let seriSim='';
+  const iccidMatch=text.match(/6\s*2\s*[\d\s]{14,20}/g);
+  if(iccidMatch){
+    for(const m of iccidMatch){
+      const digits=m.replace(/\D/g,'');
+      if(digits.length>=17&&digits.length<=20&&digits.startsWith('62')){
+        seriSim=digits;
+        break;
+      }
+    }
+  }
+
+  const noInput=document.getElementById('sim-no');
+  const seriInput=document.getElementById('sim-seri');
+
+  if(noSim){noInput.value=noSim;noInput.classList.add('filled');}
+  if(seriSim){seriInput.value=seriSim;seriInput.classList.add('filled');}
+
+  document.getElementById('ocr-progress').style.display='none';
+
+  if(noSim&&seriSim){
+    document.getElementById('ocr-status').textContent='✅ Berhasil baca No & Seri — cek kebenarannya ya!';
+    document.getElementById('ocr-status').style.color='#2ebc8a';
+    if(navigator.vibrate) navigator.vibrate([80,30,80]);
+  } else if(noSim||seriSim){
+    document.getElementById('ocr-status').textContent='⚠ Sebagian terbaca — lengkapi yang kosong';
+    document.getElementById('ocr-status').style.color='#d09030';
+  } else {
+    document.getElementById('ocr-status').textContent='❌ Teks tidak terbaca — isi manual ya bro';
+    document.getElementById('ocr-status').style.color='#c04040';
+  }
+  checkSimReady();
+}
+
+function checkSimReady(){
+  const no=document.getElementById('sim-no').value.trim();
+  const seri=document.getElementById('sim-seri').value.trim();
+  document.getElementById('sim-submit-btn').disabled=!(no&&seri);
+}
+
+// ── SUBMIT PTD ──
 async function submitScan(){
   if(isSubmitting||!scannedCode) return;
   const operator=document.getElementById('sel-operator').value;
@@ -303,9 +505,10 @@ async function submitScan(){
   if(!selectedLoc){showMsg('Please select location!','#c04040');return;}
   isSubmitting=true;
   const btn=document.getElementById('submit-btn');
-  btn.disabled=true; btn.textContent='Saving…';
-  showMsg('Sending to Google Sheets…','#888');
-  const row={nama:operator,terminalId:scannedCode,tidScanned:scannedUrl||scannedCode,location:selectedLoc};
+  btn.disabled=true;btn.textContent='Saving…';
+  if(fotoBase64) showMsg('📸 Saving + uploading photo…','#d09030');
+  else showMsg('Sending to Google Sheets…','#888');
+  const row={nama:operator,terminalId:scannedCode,location:selectedLoc,photoBase64:fotoBase64||'',photoName:fotoBase64?('PTD_'+scannedCode+'_'+Date.now()+'.jpg'):''};
   try{
     const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'scan',row})});
     const json=await res.json();
@@ -316,15 +519,8 @@ async function submitScan(){
       document.getElementById('links-row').classList.remove('hidden');
     }
     if(fotoBase64){
-      showMsg('📸 Uploading photo…','#d09030');
-      document.getElementById('foto-status').textContent='Uploading to Drive…';
-      const fname='PTD_'+scannedCode+'_'+Date.now()+'.jpg';
-      const fRes=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'uploadFoto',base64:fotoBase64,filename:fname,terminalId:scannedCode})});
-      const fJson=await fRes.json();
-      if(fJson.status==='ok'){
-        document.getElementById('foto-status').textContent='✅ Photo uploaded!';
-        document.getElementById('foto-status').style.color='#2ebc8a';
-      }
+      document.getElementById('foto-status').textContent='✅ Photo uploaded!';
+      document.getElementById('foto-status').style.color='#2ebc8a';
     }
     setSyncStatus('green','Synced · '+new Date().toLocaleTimeString());
     showMsg('✅ PTD Recorded!','#2ebc8a');
@@ -332,15 +528,45 @@ async function submitScan(){
   }catch(e){
     showMsg('⚠ Failed: '+e.message,'#c04040');
     setSyncStatus('red','Error');
-    btn.disabled=false; btn.textContent='✅ Record PTD';
+    btn.disabled=false;btn.textContent='✅ Record PTD';
   }
   isSubmitting=false;
 }
 
+// ── SUBMIT SIM ──
+async function submitSim(){
+  if(isSimSubmitting) return;
+  const operator=document.getElementById('sim-sel-operator').value;
+  const noSim=document.getElementById('sim-no').value.trim();
+  const seriSim=document.getElementById('sim-seri').value.trim();
+  if(!operator){showSimMsg('Pilih nama dulu!','#c04040');return;}
+  if(!selectedSimLoc){showSimMsg('Pilih lokasi dulu!','#c04040');return;}
+  if(!noSim||!seriSim){showSimMsg('No & Seri harus diisi!','#c04040');return;}
+  isSimSubmitting=true;
+  const btn=document.getElementById('sim-submit-btn');
+  btn.disabled=true;btn.textContent='Saving…';
+  if(simFotoBase64) showSimMsg('📸 Saving + uploading photo…','#d09030');
+  else showSimMsg('Sending to Google Sheets…','#888');
+  const row={nama:operator,noSimcard:noSim,seriSimcard:seriSim,location:selectedSimLoc,photoBase64:simFotoBase64||'',photoName:simFotoBase64?('SIM_'+noSim.replace(/\D/g,'')+'_'+Date.now()+'.jpg'):''};
+  try{
+    const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'scanSim',row})});
+    const json=await res.json();
+    if(json.status!=='ok') throw new Error(json.message);
+    setSyncStatus('green','Synced · '+new Date().toLocaleTimeString());
+    showSimMsg('✅ SIM Card Recorded!','#2ebc8a');
+    setTimeout(resetSim,2500);
+  }catch(e){
+    showSimMsg('⚠ Failed: '+e.message,'#c04040');
+    setSyncStatus('red','Error');
+    btn.disabled=false;btn.textContent='💾 Record SIM Card';
+  }
+  isSimSubmitting=false;
+}
+
 function resetScan(){
-  scannedCode=''; scannedUrl=''; fotoBase64='';
+  scannedCode='';scannedUrl='';fotoBase64='';
   const el=document.getElementById('scanned-code');
-  el.textContent='Waiting for scan…'; el.classList.add('empty');
+  el.textContent='Waiting for scan…';el.classList.add('empty');
   document.getElementById('scanned-url').textContent='';
   document.getElementById('result-box').classList.remove('has-result');
   document.getElementById('foto-preview').style.display='none';
@@ -349,15 +575,46 @@ function resetScan(){
   document.getElementById('foto-input').value='';
   document.getElementById('foto-gallery').value='';
   const btn=document.getElementById('submit-btn');
-  btn.disabled=true; btn.textContent='✅ Record PTD';
+  btn.disabled=true;btn.textContent='✅ Record PTD';
   showMsg('','');
 }
 
+function resetSim(){
+  simFotoBase64='';
+  document.getElementById('sim-no').value='';
+  document.getElementById('sim-seri').value='';
+  document.getElementById('sim-no').classList.remove('filled');
+  document.getElementById('sim-seri').classList.remove('filled');
+  document.getElementById('sim-foto-preview').style.display='none';
+  document.getElementById('ocr-status').textContent='';
+  document.getElementById('ocr-progress').style.display='none';
+  document.getElementById('ocr-bar').style.width='0%';
+  document.getElementById('sim-foto-input').value='';
+  document.getElementById('sim-foto-gallery').value='';
+  const btn=document.getElementById('sim-submit-btn');
+  btn.disabled=true;btn.textContent='💾 Record SIM Card';
+  showSimMsg('','');
+}
+
 function showMsg(t,c){const el=document.getElementById('submit-msg');el.textContent=t;el.style.color=c;}
+function showSimMsg(t,c){const el=document.getElementById('sim-submit-msg');el.textContent=t;el.style.color=c;}
 function manualInput(){const code=prompt('Enter Terminal ID or URL:');if(code&&code.trim()) onScan(code.trim());}
 
-async function loadLog(){
+// ── LOG ──
+function switchLogTab(tab){
+  activeLogTab=tab;
+  document.getElementById('log-tab-ptd').className='log-tab'+(tab==='ptd'?' on':'');
+  document.getElementById('log-tab-sim').className='log-tab'+(tab==='sim'?' on sim':'');
+  loadActiveLog();
+}
+
+async function loadActiveLog(){
   document.getElementById('log-list').innerHTML='<div class="log-empty">Loading…</div>';
+  if(activeLogTab==='ptd') await loadLog();
+  else await loadSimLog();
+}
+
+async function loadLog(){
   try{
     const res=await fetch(GAS_URL+'?action=getLog');
     const json=await res.json();
@@ -365,10 +622,20 @@ async function loadLog(){
   }catch(e){document.getElementById('log-list').innerHTML='<div class="log-empty">Failed to load.</div>';}
 }
 
+async function loadSimLog(){
+  try{
+    const res=await fetch(GAS_URL+'?action=getSimLog');
+    const json=await res.json();
+    if(json.status==='ok'){simLogData=json.data;renderSimLog();}
+  }catch(e){document.getElementById('log-list').innerHTML='<div class="log-empty">Failed to load.</div>';}
+}
+
 function filterLog(f,el){
   logFilter=f;
   document.querySelectorAll('#log-filters .chip').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on'); renderLog();
+  el.classList.add('on');
+  if(activeLogTab==='ptd') renderLog();
+  else renderSimLog();
 }
 
 function renderLog(){
@@ -395,11 +662,44 @@ function renderLog(){
   `).join('');
 }
 
+function renderSimLog(){
+  const fd=logFilter==='ALL'?simLogData:simLogData.filter(r=>r.location===logFilter);
+  const el=document.getElementById('log-list');
+  if(!fd.length){el.innerHTML='<div class="log-empty">No SIM records found.</div>';return;}
+  el.innerHTML=fd.slice(0,150).map(r=>`
+    <div class="log-item">
+      <div class="log-item-top">
+        <div class="log-tid">📞 ${r.noSimcard||'-'}</div>
+        <div class="log-badge sim">${r.location||''}</div>
+      </div>
+      <div class="log-meta">
+        <div class="log-meta-item">🔢 ${r.seriSimcard||'-'}</div>
+        <div class="log-meta-item">👤 ${r.nama||'-'}</div>
+        <div class="log-meta-item">🕐 ${r.time||''}</div>
+        <div class="log-meta-item">📅 ${r.date||''}</div>
+      </div>
+      <div class="log-links">
+        ${r.foto?`<a class="log-link foto" href="${r.foto}" target="_blank">📸 Foto</a>`:''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── DASHBOARD ──
 async function loadDashboard(){
   try{
-    const res=await fetch(GAS_URL+'?action=getSummary');
-    const json=await res.json();
-    if(json.status==='ok') renderDashboard(json);
+    const [ptdRes,simRes]=await Promise.all([
+      fetch(GAS_URL+'?action=getSummary'),
+      fetch(GAS_URL+'?action=getSimSummary')
+    ]);
+    const ptdJson=await ptdRes.json();
+    const simJson=await simRes.json();
+    if(ptdJson.status==='ok') renderDashboard(ptdJson);
+    if(simJson.status==='ok'){
+      const today=new Date().toISOString().slice(0,10);
+      document.getElementById('d-sim-total').textContent=(simJson.total||0).toLocaleString();
+      document.getElementById('d-sim-today').textContent=(simJson.byDate[today]||0).toLocaleString();
+    }
   }catch(e){}
 }
 
@@ -412,11 +712,10 @@ function renderDashboard(json){
   const opColors={};
   Object.keys(json.byOperator).forEach((k,i)=>opColors[k]=opPal[i%opPal.length]);
   renderBars('bar-operator',json.byOperator,opColors);
-  const days=[],labels=[],vals=[];
+  const labels=[],vals=[];
   for(let i=6;i>=0;i--){
     const d=new Date();d.setDate(d.getDate()-i);
     const dk=d.toISOString().slice(0,10);
-    days.push(dk);
     labels.push(`${d.getDate()}/${d.getMonth()+1}`);
     vals.push(json.byDate[dk]||0);
   }
@@ -443,13 +742,21 @@ function renderBars(elId,data,colors){
   `).join('');
 }
 
+// ── PAGE SWITCH ──
+let scannerRunning=false;
+
 function switchPage(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('on'));
   document.getElementById('page-'+page).classList.add('on');
   el.classList.add('on');
-  if(page==='scan'&&!scanner) initScanner();
-  if(page==='log') loadLog();
+  if(page==='scan'){
+    if(!scanner) initScanner();
+    else if(!scannerRunning) startScanner();
+  } else {
+    if(scanner&&scannerRunning) stopScanner();
+  }
+  if(page==='log') loadActiveLog();
   if(page==='dash') loadDashboard();
 }
 
