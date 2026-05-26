@@ -113,6 +113,17 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 
 .browser-warning{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#d09030;color:#000;padding:12px 16px;font-size:13px;font-weight:700;text-align:center;line-height:1.6}
 .browser-warning a{color:#000;text-decoration:underline;cursor:pointer;font-size:13px}
+
+/* PHOTO UPLOAD */
+.photo-wrap{background:#1e1e1e;border:1.5px dashed #444;border-radius:10px;padding:14px;margin-bottom:12px;text-align:center;cursor:pointer;transition:border-color .2s}
+.photo-wrap:hover{border-color:#4e8fd4}
+.photo-wrap.has-photo{border-color:#2ebc8a;border-style:solid}
+.photo-preview{width:100%;max-height:200px;object-fit:cover;border-radius:8px;display:none;margin-bottom:8px}
+.photo-preview.show{display:block}
+.photo-label{font-size:12px;color:#666;margin-top:4px}
+.photo-label span{color:#4e8fd4}
+.upload-progress{display:none;margin-top:8px;font-size:11px;color:#d09030;font-weight:600}
+.upload-progress.show{display:block}
 </style>
 </head>
 <body>
@@ -176,6 +187,16 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
       <div class="result-code empty" id="scanned-code">Waiting for scan…</div>
     </div>
 </div>
+
+  <div class="card">
+    <div class="card-title">📸 Foto Mesin <span style="color:#555;font-weight:400">(opsional)</span></div>
+    <div class="photo-wrap" id="photo-wrap" onclick="triggerPhoto()">
+      <img class="photo-preview" id="photo-preview" src="" alt="preview">
+      <div class="photo-label" id="photo-label">📷 <span>Tap untuk ambil / pilih foto</span></div>
+    </div>
+    <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(this)">
+    <div class="upload-progress" id="upload-progress">⏳ Mengupload foto...</div>
+  </div>
 
   <button class="submit-btn" id="submit-btn" onclick="submitScan()" disabled>
     ✅ Record PTD
@@ -301,6 +322,8 @@ async function submitScan(){
     nama: operator,
     terminalId: scannedCode,
     location: selectedLoc,
+    photoBase64: photoBase64,
+    photoName: photoName,
   };
 
   try{
@@ -329,6 +352,7 @@ function resetScan(){
   const btn=document.getElementById('submit-btn');
   btn.disabled=true; btn.textContent='✅ Record PTD';
   showMsg('','');
+  clearPhoto();
 }
 
 function showMsg(t,c){
@@ -372,7 +396,9 @@ function renderLog(){
       </div>
       <div class="log-meta">
         <div class="log-meta-item">👤 ${r.nama||'-'}</div>
+
         <div class="log-meta-item">🕐 ${r.timestamp||''}</div>
+        ${r.fotoMesin?`<div class="log-meta-item"><a href="${r.fotoMesin}" target="_blank" style="color:#4e8fd4">📸 Lihat foto</a></div>`:''}
       </div>
     </div>
   `).join('');
@@ -470,6 +496,47 @@ function openInBrowser(){
       alert('Buka Chrome dan ketik: ptd-scanner.vercel.app');
     }
   }, 1000);
+}
+
+
+// ─── PHOTO ────────────────────────────────────────────────────
+let photoBase64 = '';
+let photoName   = '';
+
+function triggerPhoto(){
+  document.getElementById('photo-input').click();
+}
+
+function handlePhoto(input){
+  const file = input.files[0];
+  if(!file) return;
+  photoName = file.name;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    photoBase64 = e.target.result;
+    const preview = document.getElementById('photo-preview');
+    const wrap    = document.getElementById('photo-wrap');
+    const label   = document.getElementById('photo-label');
+    preview.src = photoBase64;
+    preview.classList.add('show');
+    wrap.classList.add('has-photo');
+    label.innerHTML = '✅ <span>Foto siap diupload</span>';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto(){
+  photoBase64 = '';
+  photoName   = '';
+  const preview = document.getElementById('photo-preview');
+  const wrap    = document.getElementById('photo-wrap');
+  const label   = document.getElementById('photo-label');
+  preview.src = '';
+  preview.classList.remove('show');
+  wrap.classList.remove('has-photo');
+  label.innerHTML = '📷 <span>Tap untuk ambil / pilih foto</span>';
+  document.getElementById('photo-input').value = '';
+  document.getElementById('upload-progress').classList.remove('show');
 }
 
 setSyncStatus('yellow','Starting…');
