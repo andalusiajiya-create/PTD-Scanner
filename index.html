@@ -114,7 +114,6 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 .browser-warning{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#d09030;color:#000;padding:12px 16px;font-size:13px;font-weight:700;text-align:center;line-height:1.6}
 .browser-warning a{color:#000;text-decoration:underline;cursor:pointer;font-size:13px}
 
-/* PHOTO UPLOAD */
 .photo-wrap{background:#1e1e1e;border:1.5px dashed #444;border-radius:10px;padding:14px;margin-bottom:12px;text-align:center;cursor:pointer;transition:border-color .2s}
 .photo-wrap:hover{border-color:#4e8fd4}
 .photo-wrap.has-photo{border-color:#2ebc8a;border-style:solid}
@@ -187,16 +186,6 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
       <div class="result-code empty" id="scanned-code">Waiting for scan…</div>
     </div>
 </div>
-
-  <div class="card">
-    <div class="card-title">📸 Foto Mesin <span style="color:#555;font-weight:400">(opsional)</span></div>
-    <div class="photo-wrap" id="photo-wrap" onclick="triggerPhoto()">
-      <img class="photo-preview" id="photo-preview" src="" alt="preview">
-      <div class="photo-label" id="photo-label">📷 <span>Tap untuk ambil / pilih foto</span></div>
-    </div>
-    <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(this)">
-    <div class="upload-progress" id="upload-progress">⏳ Mengupload foto...</div>
-  </div>
 
   <button class="submit-btn" id="submit-btn" onclick="submitScan()" disabled>
     ✅ Record PTD
@@ -318,12 +307,18 @@ async function submitScan(){
   btn.disabled=true; btn.textContent='Saving…';
   showMsg('Sending to Google Sheets…','#888');
 
+  // Ekstrak Terminal ID dari URL kalau scannedCode berisi full URL
+  let terminalId = scannedCode;
+  if(scannedCode.includes('recharge.id/t/')) {
+    terminalId = scannedCode.split('/t/').pop().trim();
+  }
+
   const row={
     nama: operator,
-    terminalId: scannedCode,
+    terminalId: terminalId,
     location: selectedLoc,
     photoBase64: photoBase64,
-    photoName: photoName,
+    photoName: photoName
   };
 
   try{
@@ -333,7 +328,7 @@ async function submitScan(){
       showMsg('✅ PTD Recorded!','#2ebc8a');
       setSyncStatus('green','Synced · '+new Date().toLocaleTimeString());
       // push to local log
-      logData.unshift({terminalId:scannedCode,nama:operator,location:selectedLoc,timestamp:new Date().toLocaleString()});
+      logData.unshift({terminalId:terminalId,nama:operator,location:selectedLoc,timestamp:new Date().toLocaleString()});
       setTimeout(resetScan,1800);
     } else throw new Error(json.message);
   }catch(e){
@@ -352,7 +347,6 @@ function resetScan(){
   const btn=document.getElementById('submit-btn');
   btn.disabled=true; btn.textContent='✅ Record PTD';
   showMsg('','');
-  clearPhoto();
 }
 
 function showMsg(t,c){
@@ -531,12 +525,13 @@ function clearPhoto(){
   const preview = document.getElementById('photo-preview');
   const wrap    = document.getElementById('photo-wrap');
   const label   = document.getElementById('photo-label');
-  preview.src = '';
-  preview.classList.remove('show');
-  wrap.classList.remove('has-photo');
-  label.innerHTML = '📷 <span>Tap untuk ambil / pilih foto</span>';
-  document.getElementById('photo-input').value = '';
-  document.getElementById('upload-progress').classList.remove('show');
+  if(preview){ preview.src=''; preview.classList.remove('show'); }
+  if(wrap) wrap.classList.remove('has-photo');
+  if(label) label.innerHTML = '📷 <span>Tap untuk ambil / pilih foto</span>';
+  const pi = document.getElementById('photo-input');
+  if(pi) pi.value='';
+  const up = document.getElementById('upload-progress');
+  if(up) up.classList.remove('show');
 }
 
 setSyncStatus('yellow','Starting…');
