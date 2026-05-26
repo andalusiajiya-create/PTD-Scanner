@@ -110,11 +110,19 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 .refresh-btn{width:100%;padding:9px;background:#2a2a2a;border:1px solid #444;border-radius:8px;color:#888;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:14px}
 .refresh-btn:hover{background:#333;color:#fff}
 .today-badge{display:inline-flex;align-items:center;gap:4px;background:#1a3a2a;border:1px solid #2ebc8a44;border-radius:6px;padding:4px 10px;font-size:11px;color:#2ebc8a;margin-bottom:12px}
+
+.browser-warning{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#d09030;color:#000;padding:12px 16px;font-size:13px;font-weight:700;text-align:center;line-height:1.6}
+.browser-warning a{color:#000;text-decoration:underline;cursor:pointer;font-size:13px}
 </style>
 </head>
 <body>
 
-<div class="topbar">
+
+<div class="browser-warning" id="browser-warning">
+  ⚠️ Kamera tidak bisa aktif di WhatsApp/Instagram browser.<br>
+  <a onclick="openInBrowser()">👆 Tap di sini untuk buka di Chrome →</a>
+</div>
+<div class="topbar" style="margin-top:0">
   <div class="topbar-left">
     <div class="topbar-icon">📦</div>
     <div>
@@ -167,10 +175,7 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
       <div class="result-label">Terminal ID</div>
       <div class="result-code empty" id="scanned-code">Waiting for scan…</div>
     </div>
-
-    <label class="inp-label">Job ID <span style="color:#555;font-weight:400">(optional)</span></label>
-    <input class="inp-field" type="text" id="inp-jobid" placeholder="e.g. D-180520269012">
-  </div>
+</div>
 
   <button class="submit-btn" id="submit-btn" onclick="submitScan()" disabled>
     ✅ Record PTD
@@ -234,7 +239,7 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 
 <script>
 // ══ CONFIG — ganti URL setelah deploy Apps Script ══
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbx9g9l3Ch_DUsCcDu1NJMnJGjOc6gWcSIq3KRtDSG2JFOC-SldpEk_8rI-DWmmoEKLdtw/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwge03P8bLXoeiPQ-rZby8l_wxidhsWdNnpNvPAa5_fAvStUgZbcbPN1ryJuaO1Yxe1UA/exec';
 
 const OPERATORS = ['Arya','Asep','Bram','Dhany H','Kevin','Nana','Rahmad','Rusli'];
 const LOCATIONS = ['Jakarta','Bandung','Surabaya','Bali','Jogja'];
@@ -296,7 +301,6 @@ async function submitScan(){
     nama: operator,
     terminalId: scannedCode,
     location: selectedLoc,
-    jobId: document.getElementById('inp-jobid').value||''
   };
 
   try{
@@ -306,7 +310,7 @@ async function submitScan(){
       showMsg('✅ PTD Recorded!','#2ebc8a');
       setSyncStatus('green','Synced · '+new Date().toLocaleTimeString());
       // push to local log
-      logData.unshift({terminalId:scannedCode,nama:operator,location:selectedLoc,jobId:row.jobId,timestamp:new Date().toLocaleString()});
+      logData.unshift({terminalId:scannedCode,nama:operator,location:selectedLoc,timestamp:new Date().toLocaleString()});
       setTimeout(resetScan,1800);
     } else throw new Error(json.message);
   }catch(e){
@@ -322,7 +326,6 @@ function resetScan(){
   const el=document.getElementById('scanned-code');
   el.textContent='Waiting for scan…'; el.classList.add('empty');
   document.getElementById('result-box').classList.remove('has-result');
-  document.getElementById('inp-jobid').value='';
   const btn=document.getElementById('submit-btn');
   btn.disabled=true; btn.textContent='✅ Record PTD';
   showMsg('','');
@@ -369,7 +372,6 @@ function renderLog(){
       </div>
       <div class="log-meta">
         <div class="log-meta-item">👤 ${r.nama||'-'}</div>
-        ${r.jobId?`<div class="log-meta-item">🔖 ${r.jobId}</div>`:''}
         <div class="log-meta-item">🕐 ${r.timestamp||''}</div>
       </div>
     </div>
@@ -442,6 +444,34 @@ function switchPage(page,el){
 }
 
 // ─── INIT ─────────────────────────────────
+
+// ─── IN-APP BROWSER DETECTION ────────────────────────────────
+(function(){
+  const ua = navigator.userAgent || '';
+  const isInApp = /FBAN|FBAV|Instagram|WhatsApp|Line|Twitter|Snapchat|MicroMessenger/.test(ua);
+  if(isInApp){
+    document.getElementById('browser-warning').style.display = 'block';
+    document.body.style.paddingTop = '70px';
+  }
+})();
+
+function openInBrowser(){
+  const url = window.location.href;
+  // Android intent
+  const intent = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+  window.location.href = intent;
+  // Fallback: copy to clipboard
+  setTimeout(function(){
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(url).then(function(){
+        alert('Link sudah di-copy! Buka Chrome dan paste di address bar.');
+      });
+    } else {
+      alert('Buka Chrome dan ketik: ptd-scanner.vercel.app');
+    }
+  }, 1000);
+}
+
 setSyncStatus('yellow','Starting…');
 initScanner();
 </script>
