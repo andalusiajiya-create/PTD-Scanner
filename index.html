@@ -140,11 +140,11 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 <div class="page on" id="page-scan">
 
   <div class="card">
-    <div class="card-title">👤 Operator</div>
+    <div class="card-title">👤 Nama</div>
     <select class="operator-select" id="sel-operator">
-      <option value="">— Select operator —</option>
+      <option value="">— Pilih nama —</option>
       <option>Arya</option><option>Asep</option><option>Bram</option>
-      <option>Dhany H</option><option>Kevin</option><option>Nana</option><option>Rusli</option>
+      <option>Dhany H</option><option>Kevin</option><option>Nana</option><option>Rahmad</option><option>Rusli</option>
     </select>
     <div class="card-title">📍 Warehouse Location</div>
     <div class="location-row">
@@ -217,7 +217,7 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
   </div>
 
   <div class="card">
-    <div class="card-title">👤 By Operator</div>
+    <div class="card-title">👤 By Nama</div>
     <div id="bar-operator"></div>
   </div>
 
@@ -292,7 +292,7 @@ function onScan(code){
 async function submitScan(){
   if(isSubmitting||!scannedCode) return;
   const operator=document.getElementById('sel-operator').value;
-  if(!operator){showMsg('Please select operator!','#c04040');return;}
+  if(!operator){showMsg('Pilih nama dulu!','#c04040');return;}
   if(!selectedLoc){showMsg('Please select location!','#c04040');return;}
 
   isSubmitting=true;
