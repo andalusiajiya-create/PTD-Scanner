@@ -214,11 +214,6 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
       <div class="result-code empty" id="scanned-code">Waiting for scan…</div>
     </div>
 
-    <div id="jobid-wrap">
-      <label class="inp-label">Job ID <span style="color:#555;font-weight:400">(optional)</span></label>
-      <input class="inp-field" type="text" id="inp-jobid" placeholder="e.g. D-180520269012">
-    </div>
-
     <label class="inp-label" id="photo-label">📸 Foto Mesin <span class="photo-required-tag">WAJIB</span></label>
     <div class="photo-section">
       <input type="file" accept="image/*" capture="environment" class="photo-input-hidden" id="inp-photo" onchange="onPhotoSelected(event)">
@@ -360,9 +355,6 @@ function setScanMode(mode){
   document.getElementById('submit-btn').classList.toggle('sim', isSim);
   document.getElementById('manual-link-text').classList.toggle('sim', isSim);
 
-  // Job ID field only makes sense for Terminal/PTD flow
-  document.getElementById('jobid-wrap').style.display = isSim ? 'none' : 'block';
-
   // photo label text
   document.getElementById('photo-label').innerHTML = (isSim ? '📸 Foto SIM Card' : '📸 Foto Mesin') + ' <span class="photo-required-tag">WAJIB</span>';
 
@@ -387,7 +379,11 @@ function initScanner(){
   }).catch(()=>setSyncStatus('red','Camera denied'));
 }
 
-function onScan(code){
+function onScan(rawCode){
+  // Untuk mode Terminal: kalau hasil scan berupa URL (https://app.recharge.id/t/XXXX),
+  // ambil hanya bagian ID-nya saja. Untuk mode SIM, kode dipakai apa adanya.
+  const code = scanMode==='terminal' ? extractTerminalId(rawCode) : rawCode;
+
   if(scannedCode===code) return;
   scannedCode=code;
   const el=document.getElementById('scanned-code');
@@ -397,6 +393,14 @@ function onScan(code){
   if(navigator.vibrate) navigator.vibrate([80,30,80]);
   setSyncStatus('green','✓ Code detected!');
   checkDuplicate(code);
+}
+
+// Ambil ID terminal dari URL seperti "https://app.recharge.id/t/nas0072..."
+// Kalau hasil scan bukan URL (sudah berupa ID polos), dikembalikan apa adanya.
+function extractTerminalId(text){
+  const trimmed=(text||'').trim();
+  const match=trimmed.match(/\/t\/([^\/\?\s]+)/i);
+  return match ? match[1] : trimmed;
 }
 
 // ─── DUPLICATE CHECK ──────────────────────
@@ -487,7 +491,6 @@ async function submitScan(){
         nama: operator,
         terminalId: scannedCode,
         location: selectedLoc,
-        jobId: document.getElementById('inp-jobid').value||'',
         photoBase64: photoBase64,
         photoName: photoName
       };
@@ -507,7 +510,7 @@ async function submitScan(){
       if(isSim){
         logData.unshift({noSimcard:scannedCode,seriSimcard:scannedCode,nama:operator,location:selectedLoc,timestamp:nowStr,foto:json.foto||''});
       } else {
-        logData.unshift({terminalId:scannedCode,nama:operator,location:selectedLoc,jobId:row.jobId,timestamp:nowStr,foto:json.foto||''});
+        logData.unshift({terminalId:scannedCode,nama:operator,location:selectedLoc,timestamp:nowStr,foto:json.foto||''});
       }
       setTimeout(resetScan,1800);
     } else throw new Error(json.message);
@@ -525,8 +528,6 @@ function resetScan(){
   el.textContent='Waiting for scan…'; el.classList.add('empty');
   document.getElementById('result-box').classList.remove('has-result');
   document.getElementById('dup-warning').classList.remove('show');
-  const jobIdField=document.getElementById('inp-jobid');
-  if(jobIdField) jobIdField.value='';
   removePhoto();
   const btn=document.getElementById('submit-btn');
   btn.textContent = scanMode==='sim' ? '✅ Record SIM Card' : '✅ Record PTD';
