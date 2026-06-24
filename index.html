@@ -42,45 +42,75 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 .metric-val{font-size:28px;font-weight:700;color:#fff;margin-bottom:2px}
 .metric-label{font-size:10px;color:#666}
 
-/* SCAN MODE */
+/* SELECTS / INPUTS */
 .operator-select{width:100%;background:#1e1e1e;border:1.5px solid #444;border-radius:8px;color:#e8e8e8;padding:10px 12px;font-size:14px;margin-bottom:10px;appearance:none;cursor:pointer}
 .operator-select:focus{outline:none;border-color:#4e8fd4}
 .location-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
 .loc-btn{padding:8px 4px;border-radius:7px;border:1.5px solid #333;background:#2a2a2a;color:#888;font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
 .loc-btn.on{background:#1a2e4a;border-color:#4e8fd4;color:#4e8fd4}
 
-/* CAMERA */
+/* SCAN TYPE TOGGLE */
+.mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:4px}
+.mode-btn{padding:10px 6px;border-radius:7px;border:none;background:transparent;color:#777;font-size:13px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.mode-btn.on{background:#4e8fd4;color:#fff}
+.mode-btn.on.sim{background:#7060c0}
+
+/* CAMERA (QR/barcode scanner) */
 .camera-wrap{background:#000;border-radius:12px;overflow:hidden;position:relative;margin-bottom:12px;aspect-ratio:1;max-width:360px;margin-left:auto;margin-right:auto}
 #qr-reader{width:100%!important}
 #qr-reader video{width:100%!important;height:100%!important;object-fit:cover}
 #qr-reader img{display:none!important}
 #qr-reader>div>div{display:none!important}
 .scan-overlay{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center}
-.scan-frame{width:60%;aspect-ratio:1;border:2px solid #4e8fd4;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.5);position:relative}
-.corner{position:absolute;width:16px;height:16px;border-color:#4e8fd4;border-style:solid}
+.scan-frame{width:60%;aspect-ratio:1;border:2px solid #4e8fd4;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.5);position:relative;transition:border-color .2s}
+.scan-frame.sim{border-color:#7060c0}
+.corner{position:absolute;width:16px;height:16px;border-color:#4e8fd4;border-style:solid;transition:border-color .2s}
+.scan-frame.sim .corner{border-color:#7060c0}
 .corner-tl{top:-1px;left:-1px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
 .corner-tr{top:-1px;right:-1px;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
 .corner-bl{bottom:-1px;left:-1px;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
 .corner-br{bottom:-1px;right:-1px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
 .scan-line{position:absolute;left:5%;right:5%;height:2px;background:linear-gradient(90deg,transparent,#4e8fd4,transparent);animation:scanline 2s ease-in-out infinite}
+.scan-line.sim{background:linear-gradient(90deg,transparent,#7060c0,transparent)}
 @keyframes scanline{0%,100%{top:10%}50%{top:85%}}
 
 /* RESULT */
 .result-box{background:#1e1e1e;border:1.5px solid #333;border-radius:10px;padding:12px;margin-bottom:12px;transition:border-color .3s}
 .result-box.has-result{border-color:#4e8fd4}
+.result-box.has-result.sim{border-color:#7060c0}
 .result-label{font-size:10px;color:#666;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
 .result-code{font-size:17px;font-weight:700;color:#4e8fd4;word-break:break-all;letter-spacing:.03em}
+.result-code.sim{color:#7060c0}
 .result-code.empty{color:#444;font-size:13px;font-weight:400;font-style:italic}
+
+/* DUPLICATE WARNING */
+.dup-warning{display:none;background:#3a2410;border:1.5px solid #d09030;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#e0a850;font-weight:600;align-items:center;gap:8px}
+.dup-warning.show{display:flex}
+
+/* PHOTO CAPTURE */
+.photo-section{margin-bottom:12px}
+.photo-input-hidden{display:none}
+.photo-btn{width:100%;padding:12px;border-radius:8px;border:1.5px dashed #444;background:#1e1e1e;color:#888;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.photo-btn:hover{border-color:#4e8fd4;color:#4e8fd4}
+.photo-btn.has-photo{border-style:solid;border-color:#2ebc8a;color:#2ebc8a}
+.photo-preview-wrap{position:relative;margin-top:8px;display:none}
+.photo-preview-wrap.show{display:block}
+.photo-preview{width:100%;max-height:220px;object-fit:cover;border-radius:8px;display:block}
+.photo-remove{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.photo-required-tag{font-size:10px;color:#d09030;font-weight:700;margin-left:4px}
 
 /* SUBMIT BTN */
 .submit-btn{width:100%;padding:15px;border-radius:10px;border:none;font-size:15px;font-weight:700;cursor:pointer;background:#4e8fd4;color:#fff;transition:all .15s;letter-spacing:.02em}
+.submit-btn.sim{background:#7060c0}
 .submit-btn:hover{background:#3a7fc0}
+.submit-btn.sim:hover{background:#5d4fa8}
 .submit-btn:disabled{opacity:.35;cursor:not-allowed}
 .submit-btn:active{transform:scale(.98)}
 .submit-msg{text-align:center;font-size:12px;margin-top:8px;min-height:16px;font-weight:600}
 
 .manual-link{text-align:center;margin-top:12px;font-size:12px;color:#555}
 .manual-link span{color:#4e8fd4;cursor:pointer}
+.manual-link span.sim{color:#7060c0}
 
 /* JOBID input */
 .inp-field{width:100%;background:#1e1e1e;border:1.5px solid #444;border-radius:8px;color:#e8e8e8;padding:10px 12px;font-size:13px;margin-bottom:10px}
@@ -97,6 +127,7 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 .log-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;background:#1a2e4a;color:#4e8fd4;flex-shrink:0;margin-left:8px}
 .log-meta{display:flex;gap:8px;flex-wrap:wrap}
 .log-meta-item{font-size:10px;color:#666;display:flex;align-items:center;gap:3px}
+.log-meta-item a{color:#4e8fd4;text-decoration:none}
 .log-empty{text-align:center;padding:3rem 1rem;color:#444;font-size:13px}
 
 /* DASHBOARD */
@@ -139,6 +170,11 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 <!-- ══════════ SCAN PAGE ══════════ -->
 <div class="page on" id="page-scan">
 
+  <div class="mode-toggle">
+    <button class="mode-btn on" id="mode-btn-terminal" onclick="setScanMode('terminal')">📦 Scan Terminal</button>
+    <button class="mode-btn" id="mode-btn-sim" onclick="setScanMode('sim')">📶 Scan SIM Card</button>
+  </div>
+
   <div class="card">
     <div class="card-title">👤 Nama</div>
     <select class="operator-select" id="sel-operator">
@@ -157,27 +193,43 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
   </div>
 
   <div class="card">
-    <div class="card-title">📷 Scan Terminal ID</div>
+    <div class="card-title" id="scan-card-title">📷 Scan Terminal ID</div>
     <div class="camera-wrap">
       <div id="qr-reader"></div>
       <div class="scan-overlay">
-        <div class="scan-frame">
+        <div class="scan-frame" id="scan-frame">
           <div class="corner corner-tl"></div>
           <div class="corner corner-tr"></div>
           <div class="corner corner-bl"></div>
           <div class="corner corner-br"></div>
-          <div class="scan-line"></div>
+          <div class="scan-line" id="scan-line"></div>
         </div>
       </div>
     </div>
 
+    <div class="dup-warning" id="dup-warning">⚠️ <span id="dup-warning-text">Kode ini sudah pernah di-scan sebelumnya!</span></div>
+
     <div class="result-box" id="result-box">
-      <div class="result-label">Terminal ID</div>
+      <div class="result-label" id="result-label">Terminal ID</div>
       <div class="result-code empty" id="scanned-code">Waiting for scan…</div>
     </div>
 
-    <label class="inp-label">Job ID <span style="color:#555;font-weight:400">(optional)</span></label>
-    <input class="inp-field" type="text" id="inp-jobid" placeholder="e.g. D-180520269012">
+    <div id="jobid-wrap">
+      <label class="inp-label">Job ID <span style="color:#555;font-weight:400">(optional)</span></label>
+      <input class="inp-field" type="text" id="inp-jobid" placeholder="e.g. D-180520269012">
+    </div>
+
+    <label class="inp-label" id="photo-label">📸 Foto Mesin <span class="photo-required-tag">WAJIB</span></label>
+    <div class="photo-section">
+      <input type="file" accept="image/*" capture="environment" class="photo-input-hidden" id="inp-photo" onchange="onPhotoSelected(event)">
+      <button type="button" class="photo-btn" id="photo-btn" onclick="document.getElementById('inp-photo').click()">
+        <span id="photo-btn-icon">📷</span><span id="photo-btn-text">Ambil / pilih foto</span>
+      </button>
+      <div class="photo-preview-wrap" id="photo-preview-wrap">
+        <img class="photo-preview" id="photo-preview" alt="preview foto">
+        <button type="button" class="photo-remove" onclick="removePhoto()">✕</button>
+      </div>
+    </div>
   </div>
 
   <button class="submit-btn" id="submit-btn" onclick="submitScan()" disabled>
@@ -185,11 +237,15 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
   </button>
   <p class="submit-msg" id="submit-msg"></p>
 
-  <div class="manual-link">Can't scan? <span onclick="manualInput()">Enter Terminal ID manually</span></div>
+  <div class="manual-link">Can't scan? <span id="manual-link-text" onclick="manualInput()">Enter Terminal ID manually</span></div>
 </div>
 
 <!-- ══════════ LOG PAGE ══════════ -->
 <div class="page" id="page-log">
+  <div class="mode-toggle">
+    <button class="mode-btn on" id="log-mode-btn-terminal" onclick="setLogMode('terminal')">📦 PTD Log</button>
+    <button class="mode-btn" id="log-mode-btn-sim" onclick="setLogMode('sim')">📶 SIM Log</button>
+  </div>
   <button class="refresh-btn" onclick="loadLog()">↻ Refresh Log</button>
   <div class="log-filters" id="log-filters">
     <div class="chip on" onclick="filterLog('ALL',this)">All</div>
@@ -204,10 +260,14 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 
 <!-- ══════════ DASHBOARD PAGE ══════════ -->
 <div class="page" id="page-dash">
+  <div class="mode-toggle">
+    <button class="mode-btn on" id="dash-mode-btn-terminal" onclick="setDashMode('terminal')">📦 PTD</button>
+    <button class="mode-btn" id="dash-mode-btn-sim" onclick="setDashMode('sim')">📶 SIM Card</button>
+  </div>
   <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh Dashboard</button>
 
   <div class="metric-grid">
-    <div class="metric-card"><div class="metric-val" id="d-total">—</div><div class="metric-label">Total PTD</div></div>
+    <div class="metric-card"><div class="metric-val" id="d-total">—</div><div class="metric-label" id="d-total-label">Total PTD</div></div>
     <div class="metric-card"><div class="metric-val" id="d-today">—</div><div class="metric-label">Today</div></div>
   </div>
 
@@ -242,13 +302,24 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 
 <script>
 // ══ CONFIG — ganti URL setelah deploy Apps Script ══
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyCdgX8yIs6QhYUzqYLUncPbzp4P58dxNrIOiyzchLo5jbHOJwx9rTT4SIim1f2pGBM_Q/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbz7AqrrH7tgAN6i0_VgtZJVJtkL-LpwK1TIosHb7uV41qvHAWscAdn-FTjf7RjRqXyLzg/exec';
 
 const OPERATORS = ['Arya','Asep','Bram','Dhany H','Kevin','Nana','Rusli'];
 const LOCATIONS = ['Jakarta','Bandung','Surabaya','Bali','Jogja'];
 const LOC_COLORS= {'Jakarta':'#4e8fd4','Bandung':'#2ebc8a','Surabaya':'#e07050','Bali':'#d46080','Jogja':'#d09030'};
 
 let scanner=null, scannedCode='', selectedLoc='', logData=[], logFilter='ALL', isSubmitting=false, trendChart=null;
+
+// scan mode: 'terminal' or 'sim'
+let scanMode='terminal';
+// local memory of recently scanned codes per mode, seeded from log fetch, for duplicate warning
+let scannedHistory={ terminal:new Set(), sim:new Set() };
+let logMode='terminal';   // which log table is shown on the Log page
+let dashMode='terminal';  // which summary is shown on the Dashboard page
+
+// photo state
+let photoBase64='';   // raw base64 (no data: prefix) ready to send to Apps Script
+let photoName='';
 
 // ─── SYNC STATUS ──────────────────────────
 function setSyncStatus(state,msg){
@@ -260,8 +331,47 @@ function setSyncStatus(state,msg){
 // ─── LOCATION ─────────────────────────────
 function setLoc(loc,el){
   selectedLoc=loc;
-  document.querySelectorAll('.loc-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#page-scan .loc-btn').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
+}
+
+// ─── SCAN MODE (Terminal vs SIM Card) ─────
+function setScanMode(mode){
+  if(scanMode===mode) return;
+  scanMode=mode;
+
+  const isSim=mode==='sim';
+
+  // toggle buttons
+  document.getElementById('mode-btn-terminal').classList.toggle('on', !isSim);
+  document.getElementById('mode-btn-sim').classList.toggle('on', isSim);
+  document.getElementById('mode-btn-sim').classList.toggle('sim', isSim);
+
+  // card title
+  document.getElementById('scan-card-title').textContent = isSim ? '📶 Scan SIM Card' : '📷 Scan Terminal ID';
+
+  // result label
+  document.getElementById('result-label').textContent = isSim ? 'Nomor SIM Card' : 'Terminal ID';
+
+  // visual accents (frame, scanline, result box, submit button, manual link)
+  document.getElementById('scan-frame').classList.toggle('sim', isSim);
+  document.getElementById('scan-line').classList.toggle('sim', isSim);
+  document.getElementById('result-box').classList.toggle('sim', isSim);
+  document.getElementById('submit-btn').classList.toggle('sim', isSim);
+  document.getElementById('manual-link-text').classList.toggle('sim', isSim);
+
+  // Job ID field only makes sense for Terminal/PTD flow
+  document.getElementById('jobid-wrap').style.display = isSim ? 'none' : 'block';
+
+  // photo label text
+  document.getElementById('photo-label').innerHTML = (isSim ? '📸 Foto SIM Card' : '📸 Foto Mesin') + ' <span class="photo-required-tag">WAJIB</span>';
+
+  // submit button + manual link labels
+  document.getElementById('submit-btn').textContent = isSim ? '✅ Record SIM Card' : '✅ Record PTD';
+  document.getElementById('manual-link-text').textContent = isSim ? 'Enter SIM number manually' : 'Enter Terminal ID manually';
+
+  // reset whatever was scanned/photographed in the previous mode so data doesn't mix
+  resetScan();
 }
 
 // ─── SCANNER ──────────────────────────────
@@ -283,44 +393,128 @@ function onScan(code){
   const el=document.getElementById('scanned-code');
   el.textContent=code; el.classList.remove('empty');
   document.getElementById('result-box').classList.add('has-result');
-  document.getElementById('submit-btn').disabled=false;
+  updateSubmitState();
   if(navigator.vibrate) navigator.vibrate([80,30,80]);
   setSyncStatus('green','✓ Code detected!');
+  checkDuplicate(code);
+}
+
+// ─── DUPLICATE CHECK ──────────────────────
+function checkDuplicate(code){
+  const set = scanMode==='sim' ? scannedHistory.sim : scannedHistory.terminal;
+  const dup = set.has(code);
+  const warn = document.getElementById('dup-warning');
+  const warnText = document.getElementById('dup-warning-text');
+  if(dup){
+    warnText.textContent = scanMode==='sim'
+      ? 'Nomor SIM ini sudah pernah di-scan sebelumnya!'
+      : 'Terminal ID ini sudah pernah di-scan sebelumnya!';
+    warn.classList.add('show');
+    if(navigator.vibrate) navigator.vibrate([100,50,100,50,100]);
+  } else {
+    warn.classList.remove('show');
+  }
+}
+
+// ─── PHOTO CAPTURE ────────────────────────
+function onPhotoSelected(event){
+  const file=event.target.files && event.target.files[0];
+  if(!file) return;
+
+  const reader=new FileReader();
+  reader.onload=function(){
+    // reader.result is a full data URL like "data:image/jpeg;base64,XXXX"
+    photoBase64 = reader.result;
+    photoName = file.name || ('foto_'+Date.now()+'.jpg');
+
+    const preview=document.getElementById('photo-preview');
+    preview.src = reader.result;
+    document.getElementById('photo-preview-wrap').classList.add('show');
+
+    const btn=document.getElementById('photo-btn');
+    btn.classList.add('has-photo');
+    document.getElementById('photo-btn-icon').textContent='✅';
+    document.getElementById('photo-btn-text').textContent='Foto siap — ganti foto';
+
+    updateSubmitState();
+  };
+  reader.onerror=function(){
+    showMsg('⚠ Gagal membaca foto, coba lagi.','#c04040');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto(){
+  photoBase64=''; photoName='';
+  document.getElementById('inp-photo').value='';
+  document.getElementById('photo-preview-wrap').classList.remove('show');
+  const btn=document.getElementById('photo-btn');
+  btn.classList.remove('has-photo');
+  document.getElementById('photo-btn-icon').textContent='📷';
+  document.getElementById('photo-btn-text').textContent='Ambil / pilih foto';
+  updateSubmitState();
+}
+
+// ─── SUBMIT STATE (enable button only when code + photo are ready) ─
+function updateSubmitState(){
+  const btn=document.getElementById('submit-btn');
+  btn.disabled = !(scannedCode && photoBase64);
 }
 
 // ─── SUBMIT ───────────────────────────────
 async function submitScan(){
-  if(isSubmitting||!scannedCode) return;
+  if(isSubmitting||!scannedCode||!photoBase64) return;
   const operator=document.getElementById('sel-operator').value;
   if(!operator){showMsg('Pilih nama dulu!','#c04040');return;}
   if(!selectedLoc){showMsg('Please select location!','#c04040');return;}
 
   isSubmitting=true;
   const btn=document.getElementById('submit-btn');
+  const isSim = scanMode==='sim';
   btn.disabled=true; btn.textContent='Saving…';
   showMsg('Sending to Google Sheets…','#888');
 
-  const row={
-    nama: operator,
-    terminalId: scannedCode,
-    location: selectedLoc,
-    jobId: document.getElementById('inp-jobid').value||''
-  };
+  const row = isSim
+    ? {
+        nama: operator,
+        noSimcard: scannedCode,
+        seriSimcard: scannedCode,   // satu nilai scan diisi ke kedua kolom sesuai struktur sheet
+        location: selectedLoc,
+        photoBase64: photoBase64,
+        photoName: photoName
+      }
+    : {
+        nama: operator,
+        terminalId: scannedCode,
+        location: selectedLoc,
+        jobId: document.getElementById('inp-jobid').value||'',
+        photoBase64: photoBase64,
+        photoName: photoName
+      };
+
+  const action = isSim ? 'scanSim' : 'scan';
 
   try{
-    const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'scan',row})});
+    const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action, row})});
     const json=await res.json();
     if(json.status==='ok'){
-      showMsg('✅ PTD Recorded!','#2ebc8a');
+      showMsg(isSim ? '✅ SIM Card Recorded!' : '✅ PTD Recorded!','#2ebc8a');
       setSyncStatus('green','Synced · '+new Date().toLocaleTimeString());
-      // push to local log
-      logData.unshift({terminalId:scannedCode,nama:operator,location:selectedLoc,jobId:row.jobId,timestamp:new Date().toLocaleString()});
+      // remember locally so repeat scans get flagged even before a log refresh
+      (isSim ? scannedHistory.sim : scannedHistory.terminal).add(scannedCode);
+      // push to local log cache
+      const nowStr=new Date().toLocaleString();
+      if(isSim){
+        logData.unshift({noSimcard:scannedCode,seriSimcard:scannedCode,nama:operator,location:selectedLoc,timestamp:nowStr,foto:json.foto||''});
+      } else {
+        logData.unshift({terminalId:scannedCode,nama:operator,location:selectedLoc,jobId:row.jobId,timestamp:nowStr,foto:json.foto||''});
+      }
       setTimeout(resetScan,1800);
     } else throw new Error(json.message);
   }catch(e){
     showMsg('⚠ Failed: '+e.message,'#c04040');
     setSyncStatus('red','GSheet error');
-    btn.disabled=false; btn.textContent='✅ Record PTD';
+    btn.disabled=false; btn.textContent=isSim ? '✅ Record SIM Card' : '✅ Record PTD';
   }
   isSubmitting=false;
 }
@@ -330,9 +524,13 @@ function resetScan(){
   const el=document.getElementById('scanned-code');
   el.textContent='Waiting for scan…'; el.classList.add('empty');
   document.getElementById('result-box').classList.remove('has-result');
-  document.getElementById('inp-jobid').value='';
+  document.getElementById('dup-warning').classList.remove('show');
+  const jobIdField=document.getElementById('inp-jobid');
+  if(jobIdField) jobIdField.value='';
+  removePhoto();
   const btn=document.getElementById('submit-btn');
-  btn.disabled=true; btn.textContent='✅ Record PTD';
+  btn.textContent = scanMode==='sim' ? '✅ Record SIM Card' : '✅ Record PTD';
+  updateSubmitState();
   showMsg('','');
 }
 
@@ -342,17 +540,38 @@ function showMsg(t,c){
 }
 
 function manualInput(){
-  const code=prompt('Enter Terminal ID:');
+  const label = scanMode==='sim' ? 'Enter SIM card number (printed number / serial):' : 'Enter Terminal ID:';
+  const code=prompt(label);
   if(code&&code.trim()) onScan(code.trim());
 }
 
 // ─── LOG ──────────────────────────────────
+function setLogMode(mode){
+  if(logMode===mode) return;
+  logMode=mode;
+  const isSim = mode==='sim';
+  document.getElementById('log-mode-btn-terminal').classList.toggle('on', !isSim);
+  document.getElementById('log-mode-btn-sim').classList.toggle('on', isSim);
+  document.getElementById('log-mode-btn-sim').classList.toggle('sim', isSim);
+  loadLog();
+}
+
 async function loadLog(){
   document.getElementById('log-list').innerHTML='<div class="log-empty">Loading…</div>';
+  const action = logMode==='sim' ? 'getSimLog' : 'getLog';
   try{
-    const res=await fetch(GAS_URL+'?action=getLog');
+    const res=await fetch(GAS_URL+'?action='+action);
     const json=await res.json();
-    if(json.status==='ok'){ logData=json.data; renderLog(); }
+    if(json.status==='ok'){
+      logData=json.data;
+      // seed local duplicate-detection history from the fetched log
+      const set = logMode==='sim' ? scannedHistory.sim : scannedHistory.terminal;
+      logData.forEach(r=>{
+        const code = logMode==='sim' ? r.noSimcard : r.terminalId;
+        if(code) set.add(code);
+      });
+      renderLog();
+    }
   }catch(e){
     document.getElementById('log-list').innerHTML='<div class="log-empty">Failed to load.</div>';
   }
@@ -360,7 +579,7 @@ async function loadLog(){
 
 function filterLog(f,el){
   logFilter=f;
-  document.querySelectorAll('#log-filters .chip').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('#page-log .chip').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
   renderLog();
 }
@@ -369,25 +588,55 @@ function renderLog(){
   const fd=logFilter==='ALL'?logData:logData.filter(r=>r.location===logFilter);
   const el=document.getElementById('log-list');
   if(!fd.length){el.innerHTML='<div class="log-empty">No records found.</div>';return;}
-  el.innerHTML=fd.slice(0,150).map(r=>`
-    <div class="log-item">
-      <div class="log-item-top">
-        <div class="log-tid">${r.terminalId||'-'}</div>
-        <div class="log-badge">${r.location||''}</div>
+
+  if(logMode==='sim'){
+    el.innerHTML=fd.slice(0,150).map(r=>`
+      <div class="log-item">
+        <div class="log-item-top">
+          <div class="log-tid">${r.noSimcard||'-'}</div>
+          <div class="log-badge">${r.location||''}</div>
+        </div>
+        <div class="log-meta">
+          <div class="log-meta-item">👤 ${r.nama||'-'}</div>
+          ${r.foto?`<div class="log-meta-item"><a href="${r.foto}" target="_blank">📸 Foto</a></div>`:''}
+          <div class="log-meta-item">🕐 ${r.timestamp||''}</div>
+        </div>
       </div>
-      <div class="log-meta">
-        <div class="log-meta-item">👤 ${r.nama||'-'}</div>
-        ${r.jobId?`<div class="log-meta-item">🔖 ${r.jobId}</div>`:''}
-        <div class="log-meta-item">🕐 ${r.timestamp||''}</div>
+    `).join('');
+  } else {
+    el.innerHTML=fd.slice(0,150).map(r=>`
+      <div class="log-item">
+        <div class="log-item-top">
+          <div class="log-tid">${r.terminalId||'-'}</div>
+          <div class="log-badge">${r.location||''}</div>
+        </div>
+        <div class="log-meta">
+          <div class="log-meta-item">👤 ${r.nama||'-'}</div>
+          ${r.jobId?`<div class="log-meta-item">🔖 ${r.jobId}</div>`:''}
+          ${r.foto?`<div class="log-meta-item"><a href="${r.foto}" target="_blank">📸 Foto</a></div>`:''}
+          <div class="log-meta-item">🕐 ${r.timestamp||''}</div>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `).join('');
+  }
 }
 
 // ─── DASHBOARD ────────────────────────────
+function setDashMode(mode){
+  if(dashMode===mode) return;
+  dashMode=mode;
+  const isSim = mode==='sim';
+  document.getElementById('dash-mode-btn-terminal').classList.toggle('on', !isSim);
+  document.getElementById('dash-mode-btn-sim').classList.toggle('on', isSim);
+  document.getElementById('dash-mode-btn-sim').classList.toggle('sim', isSim);
+  document.getElementById('d-total-label').textContent = isSim ? 'Total SIM Card' : 'Total PTD';
+  loadDashboard();
+}
+
 async function loadDashboard(){
+  const action = dashMode==='sim' ? 'getSimSummary' : 'getSummary';
   try{
-    const res=await fetch(GAS_URL+'?action=getSummary');
+    const res=await fetch(GAS_URL+'?action='+action);
     const json=await res.json();
     if(json.status==='ok') renderDashboard(json);
   }catch(e){}
@@ -414,10 +663,12 @@ function renderDashboard(json){
   }
   const labels=days.map(d=>{const[,m,dd]=d.split('-');return `${parseInt(dd)}/${parseInt(m)}`;});
   const vals=days.map(d=>json.byDate[d]||0);
+  const lineColor = dashMode==='sim' ? '#7060c0' : '#4e8fd4';
+  const lineBg    = dashMode==='sim' ? '#7060c020' : '#4e8fd420';
   if(trendChart) trendChart.destroy();
   trendChart=new Chart(document.getElementById('chart-trend'),{
     type:'line',
-    data:{labels,datasets:[{label:'PTD',data:vals,borderColor:'#4e8fd4',backgroundColor:'#4e8fd420',fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:'#4e8fd4'}]},
+    data:{labels,datasets:[{label: dashMode==='sim' ? 'SIM Card' : 'PTD',data:vals,borderColor:lineColor,backgroundColor:lineBg,fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:lineColor}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#666',font:{size:9}},grid:{color:'#2a2a2a'}},y:{ticks:{color:'#666',font:{size:9}},grid:{color:'#2a2a2a'},beginAtZero:true}}}
   });
 }
@@ -441,7 +692,7 @@ function renderBars(elId, data, colors){
 // ─── PAGES ────────────────────────────────
 function switchPage(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.bottom-tab .tab-item').forEach(t=>t.classList.remove('on'));
   document.getElementById('page-'+page).classList.add('on');
   el.classList.add('on');
   if(page==='scan'&&!scanner) initScanner();
