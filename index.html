@@ -6,6 +6,7 @@
 <title>PTD Zero Mistake Tool</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh;padding-bottom:60px}
@@ -498,44 +499,46 @@ function setOcrStatus(state, text){
     : '<span>'+text+'</span>';
 }
 
+let tesseractWorker=null;
+async function getTesseractWorker(){
+  if(tesseractWorker) return tesseractWorker;
+  tesseractWorker = await Tesseract.createWorker('eng');
+  // batasi ke huruf+angka kapital, karena nomor SIM/seri biasanya begitu —
+  // ini membantu Tesseract gak nebak ke simbol aneh
+  await tesseractWorker.setParameters({
+    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  });
+  return tesseractWorker;
+}
+
 async function runOcrOnPhoto(dataUrl){
-  setOcrStatus('loading','Membaca nomor dari foto…');
+  setOcrStatus('loading','Membaca nomor dari foto (OCR)…');
   try{
-    const base64 = dataUrl.split(',')[1];
-    const mediaType = (dataUrl.match(/^data:(image\/\w+);base64,/) || [,'image/jpeg'])[1];
+    const worker = await getTesseractWorker();
+    const { data } = await worker.recognize(dataUrl);
+    const raw = (data.text || '').trim();
+    const confidence = Math.round(data.confidence || 0);
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 200,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
-            { type: 'text', text: 'This is a photo of a SIM card with a number written or printed on it (may be handwritten). Read the number/digits exactly as shown. Respond with ONLY the number/code itself, no other words, no explanation. If you cannot read any number clearly, respond with exactly: UNREADABLE' }
-          ]
-        }]
-      })
-    });
-    const json = await res.json();
-    const textBlock = (json.content || []).find(b => b.type === 'text');
-    const raw = textBlock ? textBlock.text.trim() : '';
+    // bersihkan: ambil cuma huruf+angka, buang baris/spasi/simbol nyasar
+    const cleaned = raw.replace(/[^a-zA-Z0-9]/g, '');
 
-    if(!raw || raw.toUpperCase().includes('UNREADABLE')){
-      setOcrStatus('error','Tidak bisa membaca nomor dari foto, isi manual ya.');
+    if(!cleaned){
+      setOcrStatus('error','⚠ OCR tidak bisa membaca apa pun, isi manual ya.');
       return;
     }
 
-    // bersihkan dari karakter selain alfanumerik (jaga-jaga ada spasi/simbol nyasar)
-    const cleaned = raw.replace(/[^a-zA-Z0-9]/g, '');
     setResultValue(cleaned);
     checkDuplicate(cleaned);
-    setOcrStatus('done','✓ Terbaca otomatis dari foto — cek & koreksi kalau perlu.');
+
+    // Tesseract kurang akurat untuk tulisan tangan — selalu minta operator cek ulang
+    if(confidence < 70){
+      setOcrStatus('error','⚠ Hasil OCR confidence rendah ('+confidence+'%) — tulisan tangan sering salah baca. WAJIB dicek & koreksi manual sebelum submit!');
+    } else {
+      setOcrStatus('done','Terbaca otomatis (confidence '+confidence+'%) — tetap cek & koreksi kalau perlu.');
+    }
     if(navigator.vibrate) navigator.vibrate(60);
   }catch(e){
-    setOcrStatus('error','Gagal membaca foto, isi manual ya.');
+    setOcrStatus('error','⚠ OCR gagal jalan, isi manual ya.');
   }
 }
 
