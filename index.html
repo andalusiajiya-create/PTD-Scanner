@@ -83,6 +83,19 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 .result-code.sim{color:#7060c0}
 .result-code.empty{color:#444;font-size:13px;font-weight:400;font-style:italic}
 
+.result-code-row{display:flex;align-items:center;gap:8px}
+.result-code-input{flex:1;background:transparent;border:none;color:#4e8fd4;font-size:17px;font-weight:700;letter-spacing:.03em;padding:0;font-family:Arial,sans-serif}
+.result-code-input:focus{outline:none}
+.result-code-input.sim{color:#7060c0}
+.result-code-input.empty{color:#444;font-size:13px;font-weight:400;font-style:italic}
+.result-code-input::placeholder{color:#444;font-size:13px;font-weight:400;font-style:italic}
+
+.ocr-status{font-size:11px;color:#7060c0;margin-top:6px;display:none;align-items:center;gap:6px}
+.ocr-status.show{display:flex}
+.ocr-status.error{color:#c04040}
+.ocr-spinner{width:11px;height:11px;border:2px solid #7060c044;border-top-color:#7060c0;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 /* DUPLICATE WARNING */
 .dup-warning{display:none;background:#3a2410;border:1.5px solid #d09030;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#e0a850;font-weight:600;align-items:center;gap:8px}
 .dup-warning.show{display:flex}
@@ -211,7 +224,10 @@ body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh
 
     <div class="result-box" id="result-box">
       <div class="result-label" id="result-label">Terminal ID</div>
-      <div class="result-code empty" id="scanned-code">Waiting for scan…</div>
+      <div class="result-code-row">
+        <input type="text" class="result-code-input empty" id="scanned-code-input" placeholder="Waiting for scan…" oninput="onResultEdited()">
+      </div>
+      <div class="ocr-status" id="ocr-status"></div>
     </div>
 
     <label class="inp-label" id="photo-label">📸 Foto Mesin <span class="photo-required-tag">WAJIB</span></label>
@@ -352,6 +368,7 @@ function setScanMode(mode){
   document.getElementById('scan-frame').classList.toggle('sim', isSim);
   document.getElementById('scan-line').classList.toggle('sim', isSim);
   document.getElementById('result-box').classList.toggle('sim', isSim);
+  document.getElementById('scanned-code-input').classList.toggle('sim', isSim);
   document.getElementById('submit-btn').classList.toggle('sim', isSim);
   document.getElementById('manual-link-text').classList.toggle('sim', isSim);
 
@@ -385,14 +402,30 @@ function onScan(rawCode){
   const code = scanMode==='terminal' ? extractTerminalId(rawCode) : rawCode;
 
   if(scannedCode===code) return;
-  scannedCode=code;
-  const el=document.getElementById('scanned-code');
-  el.textContent=code; el.classList.remove('empty');
-  document.getElementById('result-box').classList.add('has-result');
-  updateSubmitState();
+  setResultValue(code);
   if(navigator.vibrate) navigator.vibrate([80,30,80]);
   setSyncStatus('green','✓ Code detected!');
   checkDuplicate(code);
+}
+
+// Set nilai hasil scan/OCR/manual ke field yang sama, dan refresh state terkait
+function setResultValue(code){
+  scannedCode=code;
+  const input=document.getElementById('scanned-code-input');
+  input.value=code;
+  input.classList.toggle('empty', !code);
+  document.getElementById('result-box').classList.toggle('has-result', !!code);
+  updateSubmitState();
+}
+
+// Operator mengedit langsung field hasil scan (koreksi manual, termasuk setelah OCR)
+function onResultEdited(){
+  const input=document.getElementById('scanned-code-input');
+  scannedCode=input.value.trim();
+  input.classList.toggle('empty', !scannedCode);
+  document.getElementById('result-box').classList.toggle('has-result', !!scannedCode);
+  updateSubmitState();
+  if(scannedCode) checkDuplicate(scannedCode);
 }
 
 // Ambil ID terminal dari URL seperti "https://app.recharge.id/t/nas0072..."
@@ -441,11 +474,69 @@ function onPhotoSelected(event){
     document.getElementById('photo-btn-text').textContent='Foto siap — ganti foto';
 
     updateSubmitState();
+
+    // Untuk mode SIM Card: kalau belum ada hasil dari scanner kamera (barcode/QR),
+    // coba baca nomor dari foto secara otomatis (berguna untuk kartu tulisan tangan).
+    if(scanMode==='sim' && !scannedCode){
+      runOcrOnPhoto(reader.result);
+    }
   };
   reader.onerror=function(){
     showMsg('⚠ Gagal membaca foto, coba lagi.','#c04040');
   };
   reader.readAsDataURL(file);
+}
+
+// ─── OCR (baca nomor dari foto, untuk kartu SIM tulisan tangan) ──
+function setOcrStatus(state, text){
+  const el=document.getElementById('ocr-status');
+  if(!state){ el.classList.remove('show','error'); el.innerHTML=''; return; }
+  el.classList.add('show');
+  el.classList.toggle('error', state==='error');
+  el.innerHTML = state==='loading'
+    ? '<span class="ocr-spinner"></span><span>'+text+'</span>'
+    : '<span>'+text+'</span>';
+}
+
+async function runOcrOnPhoto(dataUrl){
+  setOcrStatus('loading','Membaca nomor dari foto…');
+  try{
+    const base64 = dataUrl.split(',')[1];
+    const mediaType = (dataUrl.match(/^data:(image\/\w+);base64,/) || [,'image/jpeg'])[1];
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 200,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+            { type: 'text', text: 'This is a photo of a SIM card with a number written or printed on it (may be handwritten). Read the number/digits exactly as shown. Respond with ONLY the number/code itself, no other words, no explanation. If you cannot read any number clearly, respond with exactly: UNREADABLE' }
+          ]
+        }]
+      })
+    });
+    const json = await res.json();
+    const textBlock = (json.content || []).find(b => b.type === 'text');
+    const raw = textBlock ? textBlock.text.trim() : '';
+
+    if(!raw || raw.toUpperCase().includes('UNREADABLE')){
+      setOcrStatus('error','Tidak bisa membaca nomor dari foto, isi manual ya.');
+      return;
+    }
+
+    // bersihkan dari karakter selain alfanumerik (jaga-jaga ada spasi/simbol nyasar)
+    const cleaned = raw.replace(/[^a-zA-Z0-9]/g, '');
+    setResultValue(cleaned);
+    checkDuplicate(cleaned);
+    setOcrStatus('done','✓ Terbaca otomatis dari foto — cek & koreksi kalau perlu.');
+    if(navigator.vibrate) navigator.vibrate(60);
+  }catch(e){
+    setOcrStatus('error','Gagal membaca foto, isi manual ya.');
+  }
 }
 
 function removePhoto(){
@@ -456,6 +547,7 @@ function removePhoto(){
   btn.classList.remove('has-photo');
   document.getElementById('photo-btn-icon').textContent='📷';
   document.getElementById('photo-btn-text').textContent='Ambil / pilih foto';
+  setOcrStatus(null);
   updateSubmitState();
 }
 
@@ -524,10 +616,11 @@ async function submitScan(){
 
 function resetScan(){
   scannedCode='';
-  const el=document.getElementById('scanned-code');
-  el.textContent='Waiting for scan…'; el.classList.add('empty');
+  const input=document.getElementById('scanned-code-input');
+  input.value=''; input.classList.add('empty');
   document.getElementById('result-box').classList.remove('has-result');
   document.getElementById('dup-warning').classList.remove('show');
+  setOcrStatus(null);
   removePhoto();
   const btn=document.getElementById('submit-btn');
   btn.textContent = scanMode==='sim' ? '✅ Record SIM Card' : '✅ Record PTD';
