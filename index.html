@@ -170,10 +170,17 @@ function refresh(){
 }
 document.querySelectorAll('.slot').forEach(s=>s.onclick=()=>{const k=s.dataset.k;scan[k]='';if(k==='iccid'){$('lk-info').textContent='';if(simFromInv)scan.sim=''}refresh()});
 
+// Terminal ID: nas_ / ldx_ (huruf kecil) atau RCHT (huruf besar). Kalau QR berisi link, ambil ID-nya saja.
+const TID_OK=/^(nas_|ldx_)\d{8,20}$|^RCHT\d{8,20}$/;
+const normTid=c=>/^RCHT/i.test(c)?c.toUpperCase():c.toLowerCase();
+let lastBad='',lastBadT=0;
+function fromUrl(raw){const m=String(raw).match(/(nas_\d{8,20}|ldx_\d{8,20}|rcht\d{8,20})/i);return m?m[1]:raw}
 function onScan(raw){
-  let code=clean(raw);if(!code)return;
+  let code=clean(fromUrl(raw));if(!code)return;
   const k=kind(code);
   if(k==='iccid')code=code.replace(/^89(?=62)/,''); // format inventori: No. Seri mulai dari 62 (tanpa 89)
+  if(k==='tid'){code=normTid(code);
+    if(!TID_OK.test(code)){if(code!==lastBad||Date.now()-lastBadT>2500){lastBad=code;lastBadT=Date.now();msg('Kode tidak dikenali: '+code.slice(0,28)+'. Terminal ID harus diawali nas_, ldx_, atau RCHT.','#d09030');beep(400,.25)}return}}
   if(Date.now()<coolUntil&&lastSaved.includes(code))return; // cegah baca ulang label yang baru disimpan
   if(scan[k]===code)return;
   if(scan[k]){msg(NAMES[k]+' sudah terisi. Tap kotaknya untuk scan ulang.','#d09030');return}
