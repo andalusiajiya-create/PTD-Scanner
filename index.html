@@ -1,833 +1,332 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PTD Zero Mistake Tool</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.0/tesseract.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh;padding-bottom:60px}
-
-/* TOP BAR */
+body{background:#111;font-family:Arial,sans-serif;color:#e8e8e8;min-height:100vh;padding-bottom:70px}
 .topbar{background:#1a1a1a;border-bottom:1px solid #2a2a2a;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.topbar-left{display:flex;align-items:center;gap:10px}
-.topbar-icon{font-size:20px}
-.topbar-title{font-size:14px;font-weight:700;color:#fff}
-.topbar-sub{font-size:10px;color:#666;margin-top:1px}
+.topbar-title{font-size:14px;font-weight:700;color:#fff}.topbar-sub{font-size:10px;color:#666;margin-top:1px}
 .sync-pill{display:flex;align-items:center;gap:5px;background:#222;border:1px solid #333;border-radius:20px;padding:3px 10px;font-size:10px;color:#888}
-.sync-dot{width:6px;height:6px;border-radius:50%;background:#d09030;animation:pulse 1.2s infinite;flex-shrink:0}
-.sync-dot.green{background:#2ebc8a;animation:none}
-.sync-dot.red{background:#c04040;animation:none}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* BOTTOM TAB */
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#d09030;flex-shrink:0}
+.sync-dot.green{background:#2ebc8a}.sync-dot.red{background:#c04040}
 .bottom-tab{position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid #2a2a2a;display:flex;z-index:100}
-.tab-item{flex:1;padding:10px 4px 8px;text-align:center;font-size:10px;font-weight:600;color:#555;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .15s}
-.tab-item .tab-icon{font-size:18px}
-.tab-item.on{color:#4e8fd4}
-
-/* PAGES */
-.page{display:none;padding:16px}
-.page.on{display:block}
-
-/* CARDS */
+.tab-item{flex:1;padding:10px 4px 8px;text-align:center;font-size:10px;font-weight:600;color:#555;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.tab-item span{font-size:18px}.tab-item.on{color:#4e8fd4}
+.page{display:none;padding:16px}.page.on{display:block}
 .card{background:#242424;border:1px solid #333;border-radius:10px;padding:14px;margin-bottom:12px}
 .card-title{font-size:10px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
-
-/* METRIC GRID */
 .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .metric-card{background:#242424;border:1px solid #333;border-radius:10px;padding:14px;text-align:center}
-.metric-val{font-size:28px;font-weight:700;color:#fff;margin-bottom:2px}
-.metric-label{font-size:10px;color:#666}
-
-/* SELECTS / INPUTS */
-.operator-select{width:100%;background:#1e1e1e;border:1.5px solid #444;border-radius:8px;color:#e8e8e8;padding:10px 12px;font-size:14px;margin-bottom:10px;appearance:none;cursor:pointer}
-.operator-select:focus{outline:none;border-color:#4e8fd4}
-.location-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
-.loc-btn{padding:8px 4px;border-radius:7px;border:1.5px solid #333;background:#2a2a2a;color:#888;font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
-.loc-btn.on{background:#1a2e4a;border-color:#4e8fd4;color:#4e8fd4}
-
-/* SCAN TYPE TOGGLE */
-.mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:4px}
-.mode-btn{padding:10px 6px;border-radius:7px;border:none;background:transparent;color:#777;font-size:13px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
-.mode-btn.on{background:#4e8fd4;color:#fff}
-.mode-btn.on.sim{background:#7060c0}
-
-/* CAMERA (QR/barcode scanner) */
-.camera-wrap{background:#000;border-radius:12px;overflow:hidden;position:relative;margin-bottom:12px;aspect-ratio:1;max-width:360px;margin-left:auto;margin-right:auto}
-#qr-reader{width:100%!important}
+.metric-val{font-size:28px;font-weight:700;color:#fff}.metric-label{font-size:10px;color:#666}
+.sel,.inp{width:100%;background:#1e1e1e;border:1.5px solid #444;border-radius:8px;color:#e8e8e8;padding:10px 12px;font-size:14px;margin-bottom:10px}
+.sel:focus,.inp:focus{outline:none;border-color:#4e8fd4}
+.grid{display:grid;gap:6px;margin-bottom:12px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+.opt{padding:11px 4px;border-radius:7px;border:1.5px solid #333;background:#2a2a2a;color:#888;font-size:12px;font-weight:700;cursor:pointer;text-align:center}
+.opt.on{background:#1a2e4a;border-color:#4e8fd4;color:#4e8fd4}
+.opt.on.wd{background:#3a2412;border-color:#e08a3c;color:#e08a3c}
+.camera-wrap{background:#000;border-radius:12px;overflow:hidden;position:relative;margin:0 auto 12px;aspect-ratio:1.3;max-width:380px}
+#qr-reader{width:100%!important;height:100%}
 #qr-reader video{width:100%!important;height:100%!important;object-fit:cover}
-#qr-reader img{display:none!important}
-#qr-reader>div>div{display:none!important}
+#qr-reader img,#qr-reader>div>div{display:none!important}
 .scan-overlay{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center}
-.scan-frame{width:60%;aspect-ratio:1;border:2px solid #4e8fd4;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.5);position:relative;transition:border-color .2s}
-.scan-frame.sim{border-color:#7060c0}
-.corner{position:absolute;width:16px;height:16px;border-color:#4e8fd4;border-style:solid;transition:border-color .2s}
-.scan-frame.sim .corner{border-color:#7060c0}
-.corner-tl{top:-1px;left:-1px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
-.corner-tr{top:-1px;right:-1px;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
-.corner-bl{bottom:-1px;left:-1px;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
-.corner-br{bottom:-1px;right:-1px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
-.scan-line{position:absolute;left:5%;right:5%;height:2px;background:linear-gradient(90deg,transparent,#4e8fd4,transparent);animation:scanline 2s ease-in-out infinite}
-.scan-line.sim{background:linear-gradient(90deg,transparent,#7060c0,transparent)}
-@keyframes scanline{0%,100%{top:10%}50%{top:85%}}
-
-/* RESULT */
-.result-box{background:#1e1e1e;border:1.5px solid #333;border-radius:10px;padding:12px;margin-bottom:12px;transition:border-color .3s}
-.result-box.has-result{border-color:#4e8fd4}
-.result-box.has-result.sim{border-color:#7060c0}
-.result-label{font-size:10px;color:#666;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
-.result-code{font-size:17px;font-weight:700;color:#4e8fd4;word-break:break-all;letter-spacing:.03em}
-.result-code.sim{color:#7060c0}
-.result-code.empty{color:#444;font-size:13px;font-weight:400;font-style:italic}
-
-.result-code-row{display:flex;align-items:center;gap:8px}
-.result-code-input{flex:1;background:transparent;border:none;color:#4e8fd4;font-size:17px;font-weight:700;letter-spacing:.03em;padding:0;font-family:Arial,sans-serif}
-.result-code-input:focus{outline:none}
-.result-code-input.sim{color:#7060c0}
-.result-code-input.empty{color:#444;font-size:13px;font-weight:400;font-style:italic}
-.result-code-input::placeholder{color:#444;font-size:13px;font-weight:400;font-style:italic}
-
-.ocr-status{font-size:11px;color:#7060c0;margin-top:6px;display:none;align-items:center;gap:6px}
-.ocr-status.show{display:flex}
-.ocr-status.error{color:#c04040}
-.ocr-spinner{width:11px;height:11px;border:2px solid #7060c044;border-top-color:#7060c0;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* DUPLICATE WARNING */
-.dup-warning{display:none;background:#3a2410;border:1.5px solid #d09030;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#e0a850;font-weight:600;align-items:center;gap:8px}
-.dup-warning.show{display:flex}
-
-/* PHOTO CAPTURE */
-.photo-section{margin-bottom:12px}
-.photo-input-hidden{display:none}
-.photo-btn{width:100%;padding:12px;border-radius:8px;border:1.5px dashed #444;background:#1e1e1e;color:#888;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
-.photo-btn:hover{border-color:#4e8fd4;color:#4e8fd4}
-.photo-btn.has-photo{border-style:solid;border-color:#2ebc8a;color:#2ebc8a}
-.photo-preview-wrap{position:relative;margin-top:8px;display:none}
-.photo-preview-wrap.show{display:block}
-.photo-preview{width:100%;max-height:220px;object-fit:cover;border-radius:8px;display:block}
-.photo-remove{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.photo-required-tag{font-size:10px;color:#d09030;font-weight:700;margin-left:4px}
-
-/* SUBMIT BTN */
-.submit-btn{width:100%;padding:15px;border-radius:10px;border:none;font-size:15px;font-weight:700;cursor:pointer;background:#4e8fd4;color:#fff;transition:all .15s;letter-spacing:.02em}
-.submit-btn.sim{background:#7060c0}
-.submit-btn:hover{background:#3a7fc0}
-.submit-btn.sim:hover{background:#5d4fa8}
-.submit-btn:disabled{opacity:.35;cursor:not-allowed}
-.submit-btn:active{transform:scale(.98)}
-.submit-msg{text-align:center;font-size:12px;margin-top:8px;min-height:16px;font-weight:600}
-
-.manual-link{text-align:center;margin-top:12px;font-size:12px;color:#555}
-.manual-link span{color:#4e8fd4;cursor:pointer}
-.manual-link span.sim{color:#7060c0}
-
-/* JOBID input */
-.inp-field{width:100%;background:#1e1e1e;border:1.5px solid #444;border-radius:8px;color:#e8e8e8;padding:10px 12px;font-size:13px;margin-bottom:10px}
-.inp-field:focus{outline:none;border-color:#4e8fd4}
+.scan-frame{width:85%;aspect-ratio:2.4;border:2px solid #4e8fd4;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.5);position:relative}
+.scan-line{position:absolute;left:5%;right:5%;height:2px;background:linear-gradient(90deg,transparent,#4e8fd4,transparent);animation:sl 2s ease-in-out infinite}
+@keyframes sl{0%,100%{top:10%}50%{top:85%}}
+.slot{background:#1e1e1e;border:1.5px dashed #444;border-radius:10px;padding:11px 12px;margin-bottom:10px;cursor:pointer}
+.slot.filled{border:1.5px solid #2ebc8a;background:#15281f}
+.slot-top{display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#777;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.slot-top em{font-style:normal;color:#4e8fd4}.slot.filled .slot-top em{color:#2ebc8a}
+.slot-code{font-size:18px;font-weight:700;color:#fff;word-break:break-all;letter-spacing:.04em}
+.slot-code.empty{color:#444;font-size:13px;font-weight:400;font-style:italic;letter-spacing:0}
 .inp-label{font-size:11px;color:#666;font-weight:700;margin-bottom:4px;display:block}
-
-/* LOG */
-.log-filters{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.submit-btn{width:100%;padding:15px;border-radius:10px;border:none;font-size:15px;font-weight:700;cursor:pointer;background:#4e8fd4;color:#fff}
+.submit-btn.wd{background:#e08a3c}.submit-btn:disabled{opacity:.35;cursor:not-allowed}.submit-btn:active{transform:scale(.98)}
+.submit-msg{text-align:center;font-size:12px;margin-top:8px;min-height:16px;font-weight:600}
+.manual-link{text-align:center;margin-top:12px;font-size:12px;color:#555}.manual-link span{color:#4e8fd4;cursor:pointer}
 .chip{padding:5px 12px;border-radius:20px;border:1px solid #333;background:#242424;color:#888;font-size:11px;font-weight:600;cursor:pointer}
 .chip.on{background:#1a2e4a;border-color:#4e8fd4;color:#4e8fd4}
+.chips{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .log-item{background:#242424;border:1px solid #2a2a2a;border-radius:10px;padding:12px;margin-bottom:8px}
-.log-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.log-top{display:flex;justify-content:space-between;margin-bottom:6px;gap:8px}
 .log-tid{font-size:13px;font-weight:700;color:#fff;word-break:break-all}
-.log-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;background:#1a2e4a;color:#4e8fd4;flex-shrink:0;margin-left:8px}
-.log-meta{display:flex;gap:8px;flex-wrap:wrap}
-.log-meta-item{font-size:10px;color:#666;display:flex;align-items:center;gap:3px}
-.log-meta-item a{color:#4e8fd4;text-decoration:none}
+.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;background:#1a2e4a;color:#4e8fd4;flex-shrink:0;height:fit-content}
+.badge.wd{background:#3a2412;color:#e08a3c}
+.log-meta{font-size:11px;color:#777;line-height:1.6;word-break:break-all}
 .log-empty{text-align:center;padding:3rem 1rem;color:#444;font-size:13px}
-
-/* DASHBOARD */
-.section-title{font-size:10px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
 .chart-wrap{position:relative;height:160px}
 .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .bar-label{font-size:11px;color:#aaa;width:70px;flex-shrink:0;text-align:right}
 .bar-track{flex:1;background:#2a2a2a;border-radius:4px;height:20px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;background:#4e8fd4;transition:width .6s;display:flex;align-items:center;justify-content:flex-end;padding-right:6px}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;min-width:22px}
 .bar-val{font-size:10px;font-weight:700;color:#fff}
 .refresh-btn{width:100%;padding:9px;background:#2a2a2a;border:1px solid #444;border-radius:8px;color:#888;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:14px}
-.refresh-btn:hover{background:#333;color:#fff}
-.today-badge{display:inline-flex;align-items:center;gap:4px;background:#1a3a2a;border:1px solid #2ebc8a44;border-radius:6px;padding:4px 10px;font-size:11px;color:#2ebc8a;margin-bottom:12px}
-
-.browser-warning{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#d09030;color:#000;padding:12px 16px;font-size:13px;font-weight:700;text-align:center;line-height:1.6}
-.browser-warning a{color:#000;text-decoration:underline;cursor:pointer;font-size:13px}
+.flash{position:fixed;inset:0;pointer-events:none;z-index:200;opacity:0}
+.flash.go{animation:fl .7s}
+@keyframes fl{0%{opacity:.55}100%{opacity:0}}
 </style>
 </head>
 <body>
-
-
-<div class="browser-warning" id="browser-warning">
-  ⚠️ Kamera tidak bisa aktif di WhatsApp/Instagram browser.<br>
-  <a onclick="openInBrowser()">👆 Tap di sini untuk buka di Chrome →</a>
-</div>
-<div class="topbar" style="margin-top:0">
-  <div class="topbar-left">
-    <div class="topbar-icon">📦</div>
-    <div>
-      <div class="topbar-title">PTD Zero Mistake Tool</div>
-      <div class="topbar-sub">Prepare to Deploy Scanner</div>
-    </div>
-  </div>
-  <div class="sync-pill">
-    <div class="sync-dot" id="sync-dot"></div>
-    <span id="sync-msg">Connecting…</span>
-  </div>
+<div class="flash" id="flash"></div>
+<div class="topbar">
+  <div><div class="topbar-title">PTD Zero Mistake Tool</div><div class="topbar-sub">Scan Terminal ID + No. SIM + No. Seri</div></div>
+  <div class="sync-pill"><div class="sync-dot" id="sync-dot"></div><span id="sync-msg">Starting…</span></div>
 </div>
 
-<!-- ══════════ SCAN PAGE ══════════ -->
 <div class="page on" id="page-scan">
-
-  <div class="mode-toggle">
-    <button class="mode-btn on" id="mode-btn-terminal" onclick="setScanMode('terminal')">📦 Scan Terminal</button>
-    <button class="mode-btn" id="mode-btn-sim" onclick="setScanMode('sim')">📶 Scan SIM Card</button>
-  </div>
-
   <div class="card">
-    <div class="card-title">👤 Nama</div>
-    <select class="operator-select" id="sel-operator">
-      <option value="">— Pilih nama —</option>
-      <option>Arya</option><option>Asep</option><option>Bram</option>
-      <option>Dhany H</option><option>Kevin</option><option>Nana</option><option>Rahmad</option><option>Rusli</option>
-    </select>
-    <div class="card-title">📍 Warehouse Location</div>
-    <div class="location-row">
-      <div class="loc-btn" onclick="setLoc('Jakarta',this)">Jakarta</div>
-      <div class="loc-btn" onclick="setLoc('Bandung',this)">Bandung</div>
-      <div class="loc-btn" onclick="setLoc('Surabaya',this)">Surabaya</div>
-      <div class="loc-btn" onclick="setLoc('Bali',this)">Bali</div>
-      <div class="loc-btn" onclick="setLoc('Jogja',this)">Jogja</div>
+    <div class="card-title">Jenis proses</div>
+    <div class="grid g2" id="mode-row" style="margin-bottom:0">
+      <div class="opt" data-v="Deployment">Deployment</div>
+      <div class="opt wd" data-v="Withdrawal">Withdrawal</div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title" id="scan-card-title">📷 Scan Terminal ID</div>
+    <div class="card-title">Scan Terminal ID, No. SIM, No. Seri</div>
     <div class="camera-wrap">
       <div id="qr-reader"></div>
-      <div class="scan-overlay">
-        <div class="scan-frame" id="scan-frame">
-          <div class="corner corner-tl"></div>
-          <div class="corner corner-tr"></div>
-          <div class="corner corner-bl"></div>
-          <div class="corner corner-br"></div>
-          <div class="scan-line" id="scan-line"></div>
-        </div>
-      </div>
+      <div class="scan-overlay"><div class="scan-frame"><div class="scan-line"></div></div></div>
     </div>
-
-    <div class="dup-warning" id="dup-warning">⚠️ <span id="dup-warning-text">Kode ini sudah pernah di-scan sebelumnya!</span></div>
-
-    <div class="result-box" id="result-box">
-      <div class="result-label" id="result-label">Terminal ID</div>
-      <div class="result-code-row">
-        <input type="text" class="result-code-input empty" id="scanned-code-input" placeholder="Waiting for scan…" oninput="onResultEdited()">
-      </div>
-      <div class="ocr-status" id="ocr-status"></div>
-    </div>
-
-    <label class="inp-label" id="photo-label">📸 Foto Mesin <span class="photo-required-tag">WAJIB</span></label>
-    <div class="photo-section">
-      <input type="file" accept="image/*" capture="environment" class="photo-input-hidden" id="inp-photo" onchange="onPhotoSelected(event)">
-      <button type="button" class="photo-btn" id="photo-btn" onclick="document.getElementById('inp-photo').click()">
-        <span id="photo-btn-icon">📷</span><span id="photo-btn-text">Ambil / pilih foto</span>
-      </button>
-      <div class="photo-preview-wrap" id="photo-preview-wrap">
-        <img class="photo-preview" id="photo-preview" alt="preview foto">
-        <button type="button" class="photo-remove" onclick="removePhoto()">✕</button>
-      </div>
-    </div>
+    <button class="opt" id="ocr-btn" type="button" style="width:100%;margin-bottom:12px;padding:13px">📝 Baca teks nomor SIM (OCR)</button>
+    <div class="slot" id="slot-tid" data-k="tid"><div class="slot-top"><span>Terminal ID</span><em id="st-tid">Menunggu scan</em></div><div class="slot-code empty" id="sc-tid">Arahkan kamera ke barcode</div></div>
+    <div class="slot" id="slot-sim" data-k="sim"><div class="slot-top"><span>No. SIM (nomor kartu)</span><em id="st-sim">Menunggu scan</em></div><div class="slot-code empty" id="sc-sim">Arahkan kamera ke barcode</div></div>
+    <div class="slot" id="slot-iccid" data-k="iccid"><div class="slot-top"><span>No. Seri SIM (mulai 62)</span><em id="st-iccid">Menunggu scan</em></div><div class="slot-code empty" id="sc-iccid">Arahkan kamera ke barcode</div></div>
+    <div id="lk-info" style="font-size:11px;color:#888;margin:-4px 0 10px;min-height:14px"></div>
   </div>
 
-  <button class="submit-btn" id="submit-btn" onclick="submitScan()" disabled>
-    ✅ Record PTD
-  </button>
+  <button class="submit-btn" id="submit-btn" disabled>Pilih jenis proses dulu</button>
   <p class="submit-msg" id="submit-msg"></p>
-
-  <div class="manual-link">Can't scan? <span id="manual-link-text" onclick="manualInput()">Enter Terminal ID manually</span></div>
+  <div class="manual-link">Barcode rusak? <span id="manual">Input manual</span> · Tap kotak hasil scan untuk scan ulang</div>
 </div>
 
-<!-- ══════════ LOG PAGE ══════════ -->
 <div class="page" id="page-log">
-  <div class="mode-toggle">
-    <button class="mode-btn on" id="log-mode-btn-terminal" onclick="setLogMode('terminal')">📦 PTD Log</button>
-    <button class="mode-btn" id="log-mode-btn-sim" onclick="setLogMode('sim')">📶 SIM Log</button>
-  </div>
-  <button class="refresh-btn" onclick="loadLog()">↻ Refresh Log</button>
-  <div class="log-filters" id="log-filters">
-    <div class="chip on" onclick="filterLog('ALL',this)">All</div>
-    <div class="chip" onclick="filterLog('Jakarta',this)">Jakarta</div>
-    <div class="chip" onclick="filterLog('Bandung',this)">Bandung</div>
-    <div class="chip" onclick="filterLog('Surabaya',this)">Surabaya</div>
-    <div class="chip" onclick="filterLog('Bali',this)">Bali</div>
-    <div class="chip" onclick="filterLog('Jogja',this)">Jogja</div>
-  </div>
+  <button class="refresh-btn" id="log-refresh">↻ Refresh Log</button>
+  <input class="inp" id="log-q" placeholder="Cari Terminal ID, No. SIM, No. Seri">
+  <div class="chips" id="log-tipe"><div class="chip on" data-v="ALL">Semua</div><div class="chip" data-v="Deployment">Deployment</div><div class="chip" data-v="Withdrawal">Withdrawal</div></div>
   <div id="log-list"><div class="log-empty">Loading…</div></div>
 </div>
 
-<!-- ══════════ DASHBOARD PAGE ══════════ -->
 <div class="page" id="page-dash">
-  <div class="mode-toggle">
-    <button class="mode-btn on" id="dash-mode-btn-terminal" onclick="setDashMode('terminal')">📦 PTD</button>
-    <button class="mode-btn" id="dash-mode-btn-sim" onclick="setDashMode('sim')">📶 SIM Card</button>
-  </div>
-  <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh Dashboard</button>
-
+  <button class="refresh-btn" id="dash-refresh">↻ Refresh Dashboard</button>
   <div class="metric-grid">
-    <div class="metric-card"><div class="metric-val" id="d-total">—</div><div class="metric-label" id="d-total-label">Total PTD</div></div>
-    <div class="metric-card"><div class="metric-val" id="d-today">—</div><div class="metric-label">Today</div></div>
+    <div class="metric-card"><div class="metric-val" id="d-total">—</div><div class="metric-label">Total</div></div>
+    <div class="metric-card"><div class="metric-val" id="d-today">—</div><div class="metric-label">Hari ini</div></div>
   </div>
-
-  <div class="card">
-    <div class="card-title">📍 By Location</div>
-    <div id="bar-location"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">👤 By Nama</div>
-    <div id="bar-operator"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">📅 Last 7 Days Trend</div>
-    <div class="chart-wrap"><canvas id="chart-trend"></canvas></div>
-  </div>
+  <div class="card"><div class="card-title">Tren 7 hari</div><div class="chart-wrap"><canvas id="chart-trend"></canvas></div></div>
 </div>
 
-<!-- BOTTOM TABS -->
 <div class="bottom-tab">
-  <div class="tab-item on" onclick="switchPage('scan',this)">
-    <span class="tab-icon">📷</span>Scan
-  </div>
-  <div class="tab-item" onclick="switchPage('log',this)">
-    <span class="tab-icon">📋</span>Log
-  </div>
-  <div class="tab-item" onclick="switchPage('dash',this)">
-    <span class="tab-icon">📊</span>Dashboard
-  </div>
+  <div class="tab-item on" data-p="scan"><span>📷</span>Scan</div>
+  <div class="tab-item" data-p="log"><span>📋</span>Log</div>
+  <div class="tab-item" data-p="dash"><span>📊</span>Dashboard</div>
 </div>
 
 <script>
-// ══ CONFIG — ganti URL setelah deploy Apps Script ══
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbz7AqrrH7tgAN6i0_VgtZJVJtkL-LpwK1TIosHb7uV41qvHAWscAdn-FTjf7RjRqXyLzg/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbx9g9l3Ch_DUsCcDu1NJMnJGjOc6gWcSIq3KRtDSG2JFOC-SldpEk_8rI-DWmmoEKLdtw/exec';
+const TOKEN=''; // opsional: isi token yang sama dengan yang dicek di Apps Script
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); // tanggal lokal, bukan UTC
 
-const OPERATORS = ['Arya','Asep','Bram','Dhany H','Kevin','Nana','Rusli'];
-const LOCATIONS = ['Jakarta','Bandung','Surabaya','Bali','Jogja'];
-const LOC_COLORS= {'Jakarta':'#4e8fd4','Bandung':'#2ebc8a','Surabaya':'#e07050','Bali':'#d46080','Jogja':'#d09030'};
+let simFromInv=false,scanner=null,scan={tid:'',sim:'',iccid:''},mode=ls.get('mode',''),logData=[],fTipe='ALL',busy=false,trendChart=null;
+let lastSaved=[],coolUntil=0,queue=ls.get('queue',[]),recent=ls.get('recent',[]);
 
-let scanner=null, scannedCode='', selectedLoc='', logData=[], logFilter='ALL', isSubmitting=false, trendChart=null;
+function setSync(s,m){$('sync-dot').className='sync-dot'+(s==='green'?' green':s==='red'?' red':'');$('sync-msg').textContent=m}
+function msg(t,c){const e=$('submit-msg');e.textContent=t;e.style.color=c||'#888'}
+function flash(c){const f=$('flash');f.style.background=c;f.classList.remove('go');void f.offsetWidth;f.classList.add('go')}
+function beep(f,d){try{const a=beep.c||(beep.c=new (window.AudioContext||window.webkitAudioContext)());const o=a.createOscillator(),g=a.createGain();o.frequency.value=f;g.gain.value=.15;o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d)}catch(e){}}
+function queueInfo(){return queue.length?queue.length+' antre':''}
 
-// scan mode: 'terminal' or 'sim'
-let scanMode='terminal';
-// local memory of recently scanned codes per mode, seeded from log fetch, for duplicate warning
-let scannedHistory={ terminal:new Set(), sim:new Set() };
-let logMode='terminal';   // which log table is shown on the Log page
-let dashMode='terminal';  // which summary is shown on the Dashboard page
+// ── pilihan jenis proses (diingat) ──
+function markOpts(row,v){document.querySelectorAll('#'+row+' .opt').forEach(o=>o.classList.toggle('on',o.dataset.v===v))}
+document.querySelectorAll('#mode-row .opt').forEach(o=>o.onclick=()=>{mode=o.dataset.v;ls.set('mode',mode);markOpts('mode-row',mode);refresh()});
+markOpts('mode-row',mode);
 
-// photo state
-let photoBase64='';   // raw base64 (no data: prefix) ready to send to Apps Script
-let photoName='';
+// ── klasifikasi otomatis: Seri = diawali 8962 atau 62 (ICCID Indonesia, 17-22 digit); awalan 89 dibuang otomatis; No. SIM = nomor HP 08xx/628xx; sisanya Terminal ID ──
+const clean=s=>String(s).replace(/\s/g,'').toUpperCase();
+const kind=c=>/^(89)?62\d{15,18}$/.test(c)?'iccid':(/^(\+?62|0)8\d{8,11}$/.test(c)?'sim':'tid');
+const luhn=n=>{let s=0,d=false;for(let i=n.length-1;i>=0;i--){let x=+n[i];if(d){x*=2;if(x>9)x-=9}s+=x;d=!d}return s%10===0}; // validasi checksum ICCID (89 + No. Seri)
+const NAMES={tid:'Terminal ID',sim:'No. SIM',iccid:'No. Seri SIM'};
 
-// ─── SYNC STATUS ──────────────────────────
-function setSyncStatus(state,msg){
-  const dot=document.getElementById('sync-dot');
-  dot.className='sync-dot'+(state==='green'?' green':state==='red'?' red':'');
-  document.getElementById('sync-msg').textContent=msg;
+function refresh(){
+  if(!scan.sim)simFromInv=false;
+  ['tid','sim','iccid'].forEach(k=>{
+    const f=!!scan[k];$('slot-'+k).classList.toggle('filled',f);
+    $('sc-'+k).textContent=f?scan[k]:'Arahkan kamera ke barcode';$('sc-'+k).classList.toggle('empty',!f);
+    $('st-'+k).textContent=f?(k==='sim'&&simFromInv?'✓ Dari inventori · tap untuk ubah':'✓ Terbaca · tap untuk scan ulang'):(k==='sim'?'Otomatis dari No. Seri, atau scan/manual':'Menunggu scan');
+  });
+  const b=$('submit-btn');b.classList.toggle('wd',mode==='Withdrawal');
+  if(!mode){b.disabled=true;b.textContent='Pilih jenis proses dulu'}
+  else if(!scan.tid||!scan.sim||!scan.iccid){b.disabled=true;const miss=['tid','sim','iccid'].filter(k=>!scan[k]);b.textContent='Belum: '+miss.map(k=>NAMES[k]).join(', ')}
+  else{b.disabled=false;b.textContent='Simpan '+mode}
+  if(queue.length)setSync('yellow',queueInfo()+' belum terkirim');
+}
+document.querySelectorAll('.slot').forEach(s=>s.onclick=()=>{const k=s.dataset.k;scan[k]='';if(k==='iccid'){$('lk-info').textContent='';if(simFromInv)scan.sim=''}refresh()});
+
+function onScan(raw){
+  let code=clean(raw);if(!code)return;
+  const k=kind(code);
+  if(k==='iccid')code=code.replace(/^89(?=62)/,''); // format inventori: No. Seri mulai dari 62 (tanpa 89)
+  if(Date.now()<coolUntil&&lastSaved.includes(code))return; // cegah baca ulang label yang baru disimpan
+  if(scan[k]===code)return;
+  if(scan[k]){msg(NAMES[k]+' sudah terisi. Tap kotaknya untuk scan ulang.','#d09030');return}
+  scan[k]=code;
+  if(navigator.vibrate)navigator.vibrate([80,30,80]);beep(1100,.12);flash('#2ebc8a55');
+  msg(k==='iccid'&&!luhn('89'+code)?'⚠ Checksum No. Seri tidak cocok. Cek ulang kartunya.':'','#d09030');refresh();
+  if(k==='iccid')lookupSim(code);
 }
 
-// ─── LOCATION ─────────────────────────────
-function setLoc(loc,el){
-  selectedLoc=loc;
-  document.querySelectorAll('#page-scan .loc-btn').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');
+// ── cari No. SIM + status terakhir di inventori (Sheet) berdasarkan No. Seri ──
+async function lookupSim(seri){
+  const info=$('lk-info');info.style.color='#888';info.textContent='Mencari di inventori…';
+  const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),8000);
+  try{
+    const j=await(await fetch(GAS_URL+'?action=lookup&seri='+encodeURIComponent(seri),{signal:ctl.signal})).json();
+    if(scan.iccid!==seri)return;
+    if(j.status==='ok'&&j.found){
+      let n=String(j.noSimcard||'').replace(/\D/g,'');if(n[0]==='8')n='0'+n;
+      let fix='';
+      if(n&&scan.sim&&scan.sim!==n&&!simFromInv){fix='⚠ No. SIM dikoreksi dari inventori (terbaca '+scan.sim+'). ';scan.sim=''}
+      if(!scan.sim&&n){scan.sim=n;simFromInv=true}
+      info.style.color='#2ebc8a';
+      info.textContent=fix+'Inventori: '+[j.lastStatus,j.area,j.location].filter(Boolean).join(' · ')+(j.terminalId?' · Terminal terakhir '+j.terminalId:'');
+      beep(1300,.1);refresh();
+    }else if(j.status==='ok'){
+      info.style.color='#e07050';info.textContent='⚠ No. Seri tidak ditemukan di inventori. Cek kartunya.';beep(400,.35);flash('#c0404066');
+    }else throw new Error('belum aktif');
+  }catch(e){
+    if(scan.iccid!==seri)return;
+    info.style.color='#d09030';info.textContent='Lookup inventori belum aktif atau offline. Isi No. SIM lewat scan/manual.';
+  }finally{clearTimeout(t)}
 }
 
-// ─── SCAN MODE (Terminal vs SIM Card) ─────
-function setScanMode(mode){
-  if(scanMode===mode) return;
-  scanMode=mode;
-
-  const isSim=mode==='sim';
-
-  // toggle buttons
-  document.getElementById('mode-btn-terminal').classList.toggle('on', !isSim);
-  document.getElementById('mode-btn-sim').classList.toggle('on', isSim);
-  document.getElementById('mode-btn-sim').classList.toggle('sim', isSim);
-
-  // card title
-  document.getElementById('scan-card-title').textContent = isSim ? '📶 Scan SIM Card' : '📷 Scan Terminal ID';
-
-  // result label
-  document.getElementById('result-label').textContent = isSim ? 'Nomor SIM Card' : 'Terminal ID';
-
-  // visual accents (frame, scanline, result box, submit button, manual link)
-  document.getElementById('scan-frame').classList.toggle('sim', isSim);
-  document.getElementById('scan-line').classList.toggle('sim', isSim);
-  document.getElementById('result-box').classList.toggle('sim', isSim);
-  document.getElementById('scanned-code-input').classList.toggle('sim', isSim);
-  document.getElementById('submit-btn').classList.toggle('sim', isSim);
-  document.getElementById('manual-link-text').classList.toggle('sim', isSim);
-
-  // photo label text
-  document.getElementById('photo-label').innerHTML = (isSim ? '📸 Foto SIM Card' : '📸 Foto Mesin') + ' <span class="photo-required-tag">WAJIB</span>';
-
-  // submit button + manual link labels
-  document.getElementById('submit-btn').textContent = isSim ? '✅ Record SIM Card' : '✅ Record PTD';
-  document.getElementById('manual-link-text').textContent = isSim ? 'Enter SIM number manually' : 'Enter Terminal ID manually';
-
-  // reset whatever was scanned/photographed in the previous mode so data doesn't mix
-  resetScan();
+// ── OCR: baca teks No. Seri dan No. SIM dari label (untuk kartu tanpa barcode) ──
+let ocrW=null;
+async function runOCR(){
+  const btn=$('ocr-btn');if(btn.disabled)return;
+  const v=document.querySelector('#qr-reader video');
+  if(!v||!v.videoWidth){msg('Kamera belum siap','#c04040');return}
+  if(typeof Tesseract==='undefined'){msg('Library OCR belum termuat. Cek internet.','#c04040');return}
+  btn.disabled=true;btn.textContent='Membaca… tahan kamera';msg('','');
+  try{
+    if(!ocrW){setSync('yellow','Memuat OCR…');ocrW=await Tesseract.createWorker('eng');await ocrW.setParameters({tessedit_char_whitelist:'0123456789+ ',tessedit_pageseg_mode:'11'})}
+    const sc=Math.min(1,1800/v.videoWidth),c=document.createElement('canvas');c.width=Math.round(v.videoWidth*sc);c.height=Math.round(v.videoHeight*sc);
+    const x=c.getContext('2d');x.filter='grayscale(1) contrast(1.5)';x.drawImage(v,0,0,c.width,c.height);
+    const r=await ocrW.recognize(c);
+    const runs=(r.data.text.match(/\+?\d[\d ]{7,}\d/g)||[]).map(t=>t.replace(/[\s+]/g,''));
+    let serial='',sim='',bad=false;
+    runs.forEach(t=>{const k=kind(t);
+      if(k==='iccid'){const n=t.replace(/^89(?=62)/,'');if(luhn('89'+n))serial=serial||n;else bad=true}
+      else if(k==='sim')sim=sim||t});
+    const got=[];
+    if(serial&&!scan.iccid){scan.iccid=serial;got.push('No. Seri')}
+    if(sim&&!scan.sim){scan.sim=sim;got.push('No. SIM')}
+    refresh();
+    if(got.length){beep(1100,.12);flash('#2ebc8a55');msg('OCR terbaca: '+got.join(' + ')+'. Cocokkan dengan kartunya.','#2ebc8a')}
+    else if(bad)msg('No. Seri terbaca tapi checksum salah (salah baca). Ulangi, pastikan fokus.','#d09030');
+    else msg('Nomor tidak terbaca. Dekatkan, fokus, hindari silau.','#d09030');
+    if(serial&&got.includes('No. Seri'))lookupSim(serial);
+    setSync('green','Kamera siap');
+  }catch(e){msg('OCR gagal. Cek internet, lalu coba lagi.','#c04040');setSync('red','OCR error')}
+  btn.disabled=false;btn.textContent='📝 Baca teks nomor SIM (OCR)';
 }
+$('ocr-btn').onclick=runOCR;
 
-// ─── SCANNER ──────────────────────────────
+// ── scanner ──
 function initScanner(){
-  if(scanner) return;
-  scanner=new Html5Qrcode("qr-reader");
-  Html5Qrcode.getCameras().then(cams=>{
-    if(!cams||!cams.length){setSyncStatus('red','No camera');return;}
-    const cam=cams[cams.length-1];
-    scanner.start(cam.id,{fps:10,qrbox:{width:230,height:230},aspectRatio:1},onScan,()=>{})
-      .then(()=>setSyncStatus('green','Camera ready'))
-      .catch(e=>setSyncStatus('red','Camera error'));
-  }).catch(()=>setSyncStatus('red','Camera denied'));
+  if(scanner)return;
+  scanner=new Html5Qrcode('qr-reader',{experimentalFeatures:{useBarCodeDetectorIfSupported:true}});
+  scanner.start({facingMode:'environment'},{fps:10,qrbox:(w,h)=>({width:Math.floor(w*.85),height:Math.floor(Math.min(h,w)*.4)})},onScan,()=>{})
+    .then(()=>setSync('green','Kamera siap'))
+    .catch(()=>{scanner=null;setSync('red','Kamera error')});
 }
 
-function onScan(rawCode){
-  // Untuk mode Terminal: kalau hasil scan berupa URL (https://app.recharge.id/t/XXXX),
-  // ambil hanya bagian ID-nya saja. Untuk mode SIM, kode dipakai apa adanya.
-  const code = scanMode==='terminal' ? extractTerminalId(rawCode) : rawCode;
-
-  if(scannedCode===code) return;
-  setResultValue(code);
-  if(navigator.vibrate) navigator.vibrate([80,30,80]);
-  setSyncStatus('green','✓ Code detected!');
-  checkDuplicate(code);
-}
-
-// Set nilai hasil scan/OCR/manual ke field yang sama, dan refresh state terkait
-function setResultValue(code){
-  scannedCode=code;
-  const input=document.getElementById('scanned-code-input');
-  input.value=code;
-  input.classList.toggle('empty', !code);
-  document.getElementById('result-box').classList.toggle('has-result', !!code);
-  updateSubmitState();
-}
-
-// Operator mengedit langsung field hasil scan (koreksi manual, termasuk setelah OCR)
-function onResultEdited(){
-  const input=document.getElementById('scanned-code-input');
-  scannedCode=input.value.trim();
-  input.classList.toggle('empty', !scannedCode);
-  document.getElementById('result-box').classList.toggle('has-result', !!scannedCode);
-  updateSubmitState();
-  if(scannedCode) checkDuplicate(scannedCode);
-}
-
-// Ambil ID terminal dari URL seperti "https://app.recharge.id/t/nas0072..."
-// Kalau hasil scan bukan URL (sudah berupa ID polos), dikembalikan apa adanya.
-function extractTerminalId(text){
-  const trimmed=(text||'').trim();
-  const match=trimmed.match(/\/t\/([^\/\?\s]+)/i);
-  return match ? match[1] : trimmed;
-}
-
-// ─── DUPLICATE CHECK ──────────────────────
-function checkDuplicate(code){
-  const set = scanMode==='sim' ? scannedHistory.sim : scannedHistory.terminal;
-  const dup = set.has(code);
-  const warn = document.getElementById('dup-warning');
-  const warnText = document.getElementById('dup-warning-text');
-  if(dup){
-    warnText.textContent = scanMode==='sim'
-      ? 'Nomor SIM ini sudah pernah di-scan sebelumnya!'
-      : 'Terminal ID ini sudah pernah di-scan sebelumnya!';
-    warn.classList.add('show');
-    if(navigator.vibrate) navigator.vibrate([100,50,100,50,100]);
-  } else {
-    warn.classList.remove('show');
-  }
-}
-
-// ─── PHOTO CAPTURE ────────────────────────
-function onPhotoSelected(event){
-  const file=event.target.files && event.target.files[0];
-  if(!file) return;
-
-  const reader=new FileReader();
-  reader.onload=function(){
-    // reader.result is a full data URL like "data:image/jpeg;base64,XXXX"
-    photoBase64 = reader.result;
-    photoName = file.name || ('foto_'+Date.now()+'.jpg');
-
-    const preview=document.getElementById('photo-preview');
-    preview.src = reader.result;
-    document.getElementById('photo-preview-wrap').classList.add('show');
-
-    const btn=document.getElementById('photo-btn');
-    btn.classList.add('has-photo');
-    document.getElementById('photo-btn-icon').textContent='✅';
-    document.getElementById('photo-btn-text').textContent='Foto siap — ganti foto';
-
-    updateSubmitState();
-
-    // Untuk mode SIM Card: kalau belum ada hasil dari scanner kamera (barcode/QR),
-    // coba baca nomor dari foto secara otomatis (berguna untuk kartu tulisan tangan).
-    if(scanMode==='sim' && !scannedCode){
-      runOcrOnPhoto(reader.result);
-    }
-  };
-  reader.onerror=function(){
-    showMsg('⚠ Gagal membaca foto, coba lagi.','#c04040');
-  };
-  reader.readAsDataURL(file);
-}
-
-// ─── OCR (baca nomor dari foto, untuk kartu SIM tulisan tangan) ──
-function setOcrStatus(state, text){
-  const el=document.getElementById('ocr-status');
-  if(!state){ el.classList.remove('show','error'); el.innerHTML=''; return; }
-  el.classList.add('show');
-  el.classList.toggle('error', state==='error');
-  el.innerHTML = state==='loading'
-    ? '<span class="ocr-spinner"></span><span>'+text+'</span>'
-    : '<span>'+text+'</span>';
-}
-
-let tesseractWorker=null;
-async function getTesseractWorker(){
-  if(tesseractWorker) return tesseractWorker;
-  tesseractWorker = await Tesseract.createWorker('eng');
-  // batasi ke huruf+angka kapital, karena nomor SIM/seri biasanya begitu —
-  // ini membantu Tesseract gak nebak ke simbol aneh
-  await tesseractWorker.setParameters({
-    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  });
-  return tesseractWorker;
-}
-
-async function runOcrOnPhoto(dataUrl){
-  setOcrStatus('loading','Membaca nomor dari foto (OCR)…');
+// ── kirim + antrean offline ──
+async function send(row){
+  const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),12000);
   try{
-    const worker = await getTesseractWorker();
-    const { data } = await worker.recognize(dataUrl);
-    const raw = (data.text || '').trim();
-    const confidence = Math.round(data.confidence || 0);
-
-    // bersihkan: ambil cuma huruf+angka, buang baris/spasi/simbol nyasar
-    const cleaned = raw.replace(/[^a-zA-Z0-9]/g, '');
-
-    if(!cleaned){
-      setOcrStatus('error','⚠ OCR tidak bisa membaca apa pun, isi manual ya.');
-      return;
-    }
-
-    setResultValue(cleaned);
-    checkDuplicate(cleaned);
-
-    // Tesseract kurang akurat untuk tulisan tangan — selalu minta operator cek ulang
-    if(confidence < 70){
-      setOcrStatus('error','⚠ Hasil OCR confidence rendah ('+confidence+'%) — tulisan tangan sering salah baca. WAJIB dicek & koreksi manual sebelum submit!');
-    } else {
-      setOcrStatus('done','Terbaca otomatis (confidence '+confidence+'%) — tetap cek & koreksi kalau perlu.');
-    }
-    if(navigator.vibrate) navigator.vibrate(60);
-  }catch(e){
-    setOcrStatus('error','⚠ OCR gagal jalan, isi manual ya.');
-  }
+    const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'scan',row,token:TOKEN}),signal:ctl.signal});
+    const j=await r.json();if(j.status!=='ok')throw new Error(j.message||'ditolak server');return true;
+  }finally{clearTimeout(t)}
 }
-
-function removePhoto(){
-  photoBase64=''; photoName='';
-  document.getElementById('inp-photo').value='';
-  document.getElementById('photo-preview-wrap').classList.remove('show');
-  const btn=document.getElementById('photo-btn');
-  btn.classList.remove('has-photo');
-  document.getElementById('photo-btn-icon').textContent='📷';
-  document.getElementById('photo-btn-text').textContent='Ambil / pilih foto';
-  setOcrStatus(null);
-  updateSubmitState();
+async function flushQueue(){
+  if(!queue.length||flushQueue.on)return;flushQueue.on=true;
+  while(queue.length){try{await send(queue[0]);queue.shift();ls.set('queue',queue)}catch(e){break}}
+  flushQueue.on=false;
+  if(queue.length)setSync('red',queue.length+' belum terkirim');else setSync('green','Tersinkron '+new Date().toLocaleTimeString('id-ID'));
 }
+window.addEventListener('online',flushQueue);
 
-// ─── SUBMIT STATE (enable button only when code + photo are ready) ─
-function updateSubmitState(){
-  const btn=document.getElementById('submit-btn');
-  btn.disabled = !(scannedCode && photoBase64);
-}
+$('submit-btn').onclick=async()=>{
+  if(busy||!scan.tid||!scan.sim||!scan.iccid||!mode)return;
+  const dup=recent.find(r=>r.tid===scan.tid&&r.tipe===mode&&Date.now()-r.t<30*60000);
+  if(dup&&!confirm('Terminal ini baru disimpan sebagai '+mode+' '+Math.round((Date.now()-dup.t)/60000)+' menit lalu. Tetap simpan?'))return;
+  busy=true;$('submit-btn').disabled=true;msg('Menyimpan…','#888');
+  const row={terminalId:scan.tid,simcard:scan.sim,noSeri:scan.iccid,tipe:mode,clientTime:new Date().toISOString()};
+  let ok=false;
+  try{ok=await send(row)}catch(e){queue.push(row);ls.set('queue',queue)}
+  recent=recent.filter(r=>Date.now()-r.t<30*60000);recent.push({tid:scan.tid,tipe:mode,t:Date.now()});ls.set('recent',recent);
+  logData.unshift({...row,timestamp:new Date().toLocaleString('id-ID')});
+  if(ok){msg('✅ '+mode+' tersimpan','#2ebc8a');setSync('green','Tersinkron '+new Date().toLocaleTimeString('id-ID'));beep(1500,.2);flash('#2ebc8a66')}
+  else{msg('📴 Disimpan di perangkat, dikirim otomatis saat online','#d09030');setSync('red',queue.length+' belum terkirim');beep(500,.3);flash('#d0903066')}
+  lastSaved=[scan.tid,scan.sim,scan.iccid];coolUntil=Date.now()+4000;
+  scan={tid:'',sim:'',iccid:''};simFromInv=false;$('lk-info').textContent='';busy=false;refresh();
+  setTimeout(()=>{if($('submit-msg').textContent.startsWith('✅'))msg('','')},2500);
+  if(ok)flushQueue();
+};
 
-// ─── SUBMIT ───────────────────────────────
-async function submitScan(){
-  if(isSubmitting||!scannedCode||!photoBase64) return;
-  const operator=document.getElementById('sel-operator').value;
-  if(!operator){showMsg('Pilih nama dulu!','#c04040');return;}
-  if(!selectedLoc){showMsg('Please select location!','#c04040');return;}
+$('manual').onclick=()=>{
+  const c=prompt('Masukkan Terminal ID, No. SIM, atau No. Seri:');if(c&&c.trim())onScan(c.trim());
+};
 
-  isSubmitting=true;
-  const btn=document.getElementById('submit-btn');
-  const isSim = scanMode==='sim';
-  btn.disabled=true; btn.textContent='Saving…';
-  showMsg('Sending to Google Sheets…','#888');
-
-  const row = isSim
-    ? {
-        nama: operator,
-        noSimcard: scannedCode,
-        seriSimcard: scannedCode,   // satu nilai scan diisi ke kedua kolom sesuai struktur sheet
-        location: selectedLoc,
-        photoBase64: photoBase64,
-        photoName: photoName
-      }
-    : {
-        nama: operator,
-        terminalId: scannedCode,
-        location: selectedLoc,
-        photoBase64: photoBase64,
-        photoName: photoName
-      };
-
-  const action = isSim ? 'scanSim' : 'scan';
-
-  try{
-    const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action, row})});
-    const json=await res.json();
-    if(json.status==='ok'){
-      showMsg(isSim ? '✅ SIM Card Recorded!' : '✅ PTD Recorded!','#2ebc8a');
-      setSyncStatus('green','Synced · '+new Date().toLocaleTimeString());
-      // remember locally so repeat scans get flagged even before a log refresh
-      (isSim ? scannedHistory.sim : scannedHistory.terminal).add(scannedCode);
-      // push to local log cache
-      const nowStr=new Date().toLocaleString();
-      if(isSim){
-        logData.unshift({noSimcard:scannedCode,seriSimcard:scannedCode,nama:operator,location:selectedLoc,timestamp:nowStr,foto:json.foto||''});
-      } else {
-        logData.unshift({terminalId:scannedCode,nama:operator,location:selectedLoc,timestamp:nowStr,foto:json.foto||''});
-      }
-      setTimeout(resetScan,1800);
-    } else throw new Error(json.message);
-  }catch(e){
-    showMsg('⚠ Failed: '+e.message,'#c04040');
-    setSyncStatus('red','GSheet error');
-    btn.disabled=false; btn.textContent=isSim ? '✅ Record SIM Card' : '✅ Record PTD';
-  }
-  isSubmitting=false;
-}
-
-function resetScan(){
-  scannedCode='';
-  const input=document.getElementById('scanned-code-input');
-  input.value=''; input.classList.add('empty');
-  document.getElementById('result-box').classList.remove('has-result');
-  document.getElementById('dup-warning').classList.remove('show');
-  setOcrStatus(null);
-  removePhoto();
-  const btn=document.getElementById('submit-btn');
-  btn.textContent = scanMode==='sim' ? '✅ Record SIM Card' : '✅ Record PTD';
-  updateSubmitState();
-  showMsg('','');
-}
-
-function showMsg(t,c){
-  const el=document.getElementById('submit-msg');
-  el.textContent=t; el.style.color=c;
-}
-
-function manualInput(){
-  const label = scanMode==='sim' ? 'Enter SIM card number (printed number / serial):' : 'Enter Terminal ID:';
-  const code=prompt(label);
-  if(code&&code.trim()) onScan(code.trim());
-}
-
-// ─── LOG ──────────────────────────────────
-function setLogMode(mode){
-  if(logMode===mode) return;
-  logMode=mode;
-  const isSim = mode==='sim';
-  document.getElementById('log-mode-btn-terminal').classList.toggle('on', !isSim);
-  document.getElementById('log-mode-btn-sim').classList.toggle('on', isSim);
-  document.getElementById('log-mode-btn-sim').classList.toggle('sim', isSim);
-  loadLog();
-}
-
+// ── log ──
 async function loadLog(){
-  document.getElementById('log-list').innerHTML='<div class="log-empty">Loading…</div>';
-  const action = logMode==='sim' ? 'getSimLog' : 'getLog';
-  try{
-    const res=await fetch(GAS_URL+'?action='+action);
-    const json=await res.json();
-    if(json.status==='ok'){
-      logData=json.data;
-      // seed local duplicate-detection history from the fetched log
-      const set = logMode==='sim' ? scannedHistory.sim : scannedHistory.terminal;
-      logData.forEach(r=>{
-        const code = logMode==='sim' ? r.noSimcard : r.terminalId;
-        if(code) set.add(code);
-      });
-      renderLog();
-    }
-  }catch(e){
-    document.getElementById('log-list').innerHTML='<div class="log-empty">Failed to load.</div>';
-  }
+  $('log-list').innerHTML='<div class="log-empty">Loading…</div>';
+  try{const j=await(await fetch(GAS_URL+'?action=getLog')).json();if(j.status==='ok'){logData=j.data;renderLog()}}
+  catch(e){$('log-list').innerHTML='<div class="log-empty">Gagal memuat log.</div>'}
 }
-
-function filterLog(f,el){
-  logFilter=f;
-  document.querySelectorAll('#page-log .chip').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on');
-  renderLog();
-}
-
+function chipGroup(id,cb){document.querySelectorAll('#'+id+' .chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('#'+id+' .chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');cb(c.dataset.v);renderLog()})}
+chipGroup('log-tipe',v=>fTipe=v);$('log-q').oninput=renderLog;
 function renderLog(){
-  const fd=logFilter==='ALL'?logData:logData.filter(r=>r.location===logFilter);
-  const el=document.getElementById('log-list');
-  if(!fd.length){el.innerHTML='<div class="log-empty">No records found.</div>';return;}
-
-  if(logMode==='sim'){
-    el.innerHTML=fd.slice(0,150).map(r=>`
-      <div class="log-item">
-        <div class="log-item-top">
-          <div class="log-tid">${r.noSimcard||'-'}</div>
-          <div class="log-badge">${r.location||''}</div>
-        </div>
-        <div class="log-meta">
-          <div class="log-meta-item">👤 ${r.nama||'-'}</div>
-          ${r.foto?`<div class="log-meta-item"><a href="${r.foto}" target="_blank">📸 Foto</a></div>`:''}
-          <div class="log-meta-item">🕐 ${r.timestamp||''}</div>
-        </div>
-      </div>
-    `).join('');
-  } else {
-    el.innerHTML=fd.slice(0,150).map(r=>`
-      <div class="log-item">
-        <div class="log-item-top">
-          <div class="log-tid">${r.terminalId||'-'}</div>
-          <div class="log-badge">${r.location||''}</div>
-        </div>
-        <div class="log-meta">
-          <div class="log-meta-item">👤 ${r.nama||'-'}</div>
-          ${r.jobId?`<div class="log-meta-item">🔖 ${r.jobId}</div>`:''}
-          ${r.foto?`<div class="log-meta-item"><a href="${r.foto}" target="_blank">📸 Foto</a></div>`:''}
-          <div class="log-meta-item">🕐 ${r.timestamp||''}</div>
-        </div>
-      </div>
-    `).join('');
-  }
+  const q=$('log-q').value.trim().toLowerCase();
+  const fd=logData.filter(r=>(fTipe==='ALL'||r.tipe===fTipe)&&(!q||[r.terminalId,r.simcard,r.noSeri].join(' ').toLowerCase().includes(q)));
+  if(!fd.length){$('log-list').innerHTML='<div class="log-empty">Tidak ada data.</div>';return}
+  $('log-list').innerHTML=fd.slice(0,150).map(r=>`<div class="log-item"><div class="log-top"><div class="log-tid">${esc(r.terminalId||'-')}</div><div class="badge ${r.tipe==='Withdrawal'?'wd':''}">${esc(r.tipe||'-')}</div></div><div class="log-meta">SIM: ${esc(r.simcard||'-')}<br>Seri: ${esc(r.noSeri||'-')}<br>🕐 ${esc(r.timestamp||'')}</div></div>`).join('');
 }
+$('log-refresh').onclick=loadLog;
 
-// ─── DASHBOARD ────────────────────────────
-function setDashMode(mode){
-  if(dashMode===mode) return;
-  dashMode=mode;
-  const isSim = mode==='sim';
-  document.getElementById('dash-mode-btn-terminal').classList.toggle('on', !isSim);
-  document.getElementById('dash-mode-btn-sim').classList.toggle('on', isSim);
-  document.getElementById('dash-mode-btn-sim').classList.toggle('sim', isSim);
-  document.getElementById('d-total-label').textContent = isSim ? 'Total SIM Card' : 'Total PTD';
-  loadDashboard();
-}
-
+// ── dashboard ──
 async function loadDashboard(){
-  const action = dashMode==='sim' ? 'getSimSummary' : 'getSummary';
-  try{
-    const res=await fetch(GAS_URL+'?action='+action);
-    const json=await res.json();
-    if(json.status==='ok') renderDashboard(json);
-  }catch(e){}
+  try{const j=await(await fetch(GAS_URL+'?action=getSummary')).json();if(j.status==='ok')renderDash(j)}catch(e){}
 }
-
-function renderDashboard(json){
-  document.getElementById('d-total').textContent=(json.total||0).toLocaleString();
-  const today=new Date().toISOString().slice(0,10);
-  document.getElementById('d-today').textContent=(json.byDate[today]||0).toLocaleString();
-
-  // location bars
-  renderBars('bar-location', json.byLocation, LOC_COLORS);
-  // operator bars
-  const opColors={};
-  const opPal=['#4e8fd4','#2ebc8a','#e07050','#d46080','#d09030','#7060c0','#80b840'];
-  Object.keys(json.byOperator).forEach((k,i)=>opColors[k]=opPal[i%opPal.length]);
-  renderBars('bar-operator', json.byOperator, opColors);
-
-  // trend last 7 days
-  const days=[];
-  for(let i=6;i>=0;i--){
-    const d=new Date(); d.setDate(d.getDate()-i);
-    days.push(d.toISOString().slice(0,10));
-  }
-  const labels=days.map(d=>{const[,m,dd]=d.split('-');return `${parseInt(dd)}/${parseInt(m)}`;});
-  const vals=days.map(d=>json.byDate[d]||0);
-  const lineColor = dashMode==='sim' ? '#7060c0' : '#4e8fd4';
-  const lineBg    = dashMode==='sim' ? '#7060c020' : '#4e8fd420';
-  if(trendChart) trendChart.destroy();
-  trendChart=new Chart(document.getElementById('chart-trend'),{
-    type:'line',
-    data:{labels,datasets:[{label: dashMode==='sim' ? 'SIM Card' : 'PTD',data:vals,borderColor:lineColor,backgroundColor:lineBg,fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:lineColor}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#666',font:{size:9}},grid:{color:'#2a2a2a'}},y:{ticks:{color:'#666',font:{size:9}},grid:{color:'#2a2a2a'},beginAtZero:true}}}
-  });
+function renderDash(j){
+  $('d-total').textContent=(j.total||0).toLocaleString('id-ID');
+  $('d-today').textContent=((j.byDate||{})[ymd(new Date())]||0).toLocaleString('id-ID');
+  const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(ymd(d))}
+  const labels=days.map(d=>{const p=d.split('-');return parseInt(p[2])+'/'+parseInt(p[1])});
+  if(trendChart)trendChart.destroy();
+  trendChart=new Chart($('chart-trend'),{type:'line',data:{labels,datasets:[{data:days.map(d=>(j.byDate||{})[d]||0),borderColor:'#4e8fd4',backgroundColor:'#4e8fd420',fill:true,tension:.3,pointRadius:4,pointBackgroundColor:'#4e8fd4'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#666',font:{size:9}},grid:{color:'#2a2a2a'}},y:{ticks:{color:'#666',font:{size:9}},grid:{color:'#2a2a2a'},beginAtZero:true}}}});
 }
+$('dash-refresh').onclick=loadDashboard;
 
-function renderBars(elId, data, colors){
-  const el=document.getElementById(elId);
-  const max=Math.max(...Object.values(data),1);
-  const sorted=Object.entries(data).sort((a,b)=>b[1]-a[1]);
-  el.innerHTML=sorted.map(([k,v])=>`
-    <div class="bar-row">
-      <div class="bar-label">${k}</div>
-      <div class="bar-track">
-        <div class="bar-fill" style="width:${Math.round((v/max)*100)}%;background:${colors[k]||'#4e8fd4'}">
-          <span class="bar-val">${v}</span>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ─── PAGES ────────────────────────────────
-function switchPage(page,el){
+// ── navigasi ──
+document.querySelectorAll('.tab-item').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.bottom-tab .tab-item').forEach(t=>t.classList.remove('on'));
-  document.getElementById('page-'+page).classList.add('on');
-  el.classList.add('on');
-  if(page==='scan'&&!scanner) initScanner();
-  if(page==='log') loadLog();
-  if(page==='dash') loadDashboard();
-}
+  document.querySelectorAll('.tab-item').forEach(x=>x.classList.remove('on'));
+  $('page-'+t.dataset.p).classList.add('on');t.classList.add('on');
+  if(t.dataset.p==='scan')initScanner();
+  if(t.dataset.p==='log')loadLog();
+  if(t.dataset.p==='dash')loadDashboard();
+});
 
-// ─── INIT ─────────────────────────────────
-
-// ─── IN-APP BROWSER DETECTION ────────────────────────────────
-(function(){
-  const ua = navigator.userAgent || '';
-  const isInApp = /FBAN|FBAV|Instagram|WhatsApp|Line|Twitter|Snapchat|MicroMessenger/.test(ua);
-  if(isInApp){
-    document.getElementById('browser-warning').style.display = 'block';
-    document.body.style.paddingTop = '70px';
-  }
-})();
-
-function openInBrowser(){
-  const url = window.location.href;
-  // Android intent
-  const intent = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
-  window.location.href = intent;
-  // Fallback: copy to clipboard
-  setTimeout(function(){
-    if(navigator.clipboard){
-      navigator.clipboard.writeText(url).then(function(){
-        alert('Link sudah di-copy! Buka Chrome dan paste di address bar.');
-      });
-    } else {
-      alert('Buka Chrome dan ketik: ptd-scanner.vercel.app');
-    }
-  }, 1000);
-}
-
-setSyncStatus('yellow','Starting…');
-initScanner();
+refresh();initScanner();flushQueue();
 </script>
 </body>
 </html>
